@@ -535,7 +535,7 @@ export default function ProductDetailsPage() {
       <div className="max-w-7xl mx-auto px-4 pb-16">
         <div className="bg-white/70 backdrop-blur-sm rounded-lg p-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-[#373436] mb-6">It's What's Inside That Really Matters</h2>
+            <h2 className="text-4xl font-bold text-[#373436] mb-6">It&apos;s What&apos;s Inside That Really Matters</h2>
             <p className="text-[#373436] text-lg max-w-3xl mx-auto">
               Each ingredient is handpicked and infused following the wisdom of ancient Ayurvedic texts, ensuring that every bite delivers pure, targeted benefits for your mind, body, and soul.
             </p>
@@ -555,7 +555,7 @@ export default function ProductDetailsPage() {
               </div>
               <h3 className="text-xl font-bold text-[#373436] mb-3">Shilajit</h3>
               <p className="text-[#373436] text-sm leading-relaxed">
-                Shilajit, known as "the conqueror of mountains and destroyer of weakness", is a powerful Ayurvedic rasayana. Rich in fulvic acid and trace minerals, it boosts energy, enhances vitality, supports hormonal balance, and strengthens overall immunity.
+                Shilajit, known as &quot;the conqueror of mountains and destroyer of weakness&quot;, is a powerful Ayurvedic rasayana. Rich in fulvic acid and trace minerals, it boosts energy, enhances vitality, supports hormonal balance, and strengthens overall immunity.
               </p>
             </div>
 
@@ -572,7 +572,7 @@ export default function ProductDetailsPage() {
               </div>
               <h3 className="text-xl font-bold text-[#373436] mb-3">Safed Musli</h3>
               <p className="text-[#373436] text-sm leading-relaxed">
-                Safed Musli, hailed as "White Gold" in Ayurveda, is a natural aphrodisiac that enhances strength, stamina, and vitality. It supports reproductive health, boosts immunity, and restores overall energy levels.
+                Safed Musli, hailed as &quot;White Gold&quot; in Ayurveda, is a natural aphrodisiac that enhances strength, stamina, and vitality. It supports reproductive health, boosts immunity, and restores overall energy levels.
               </p>
             </div>
 
@@ -589,7 +589,7 @@ export default function ProductDetailsPage() {
               </div>
               <h3 className="text-xl font-bold text-[#373436] mb-3">Ashwagandha</h3>
               <p className="text-[#373436] text-sm leading-relaxed">
-                Ashwagandha, known as "Indian Ginseng", is a revered adaptogen in Ayurveda. It helps reduce stress and anxiety, balances cortisol, improves strength and stamina, and promotes restful sleep while supporting overall vitality.
+                Ashwagandha, known as &quot;Indian Ginseng&quot;, is a revered adaptogen in Ayurveda. It helps reduce stress and anxiety, balances cortisol, improves strength and stamina, and promotes restful sleep while supporting overall vitality.
               </p>
             </div>
 

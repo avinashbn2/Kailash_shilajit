@@ -347,7 +347,7 @@ export default function Home() {
   </ul>
 
   <p className="pt-4 border-t border-gray-200 italic font-medium">
-    "Our story is our proof: No machines, no heat, no compromise."
+  &quot;Our story is our proof: No machines, no heat, no compromise.&quot;
   </p>
 </div>
 
