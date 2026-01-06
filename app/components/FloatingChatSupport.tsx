@@ -105,13 +105,25 @@ export default function FloatingChatSupport() {
           onClick={handleToggleChat}
           className="relative group cursor-pointer"
         >
-          <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-[#8A9C66] shadow-lg hover:scale-110 transition-transform duration-300">
+          <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-[#8A9C66] shadow-lg hover:scale-110 transition-transform duration-300 bg-[#8A9C66]">
+            {/* Video element */}
+            <video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src="https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov" type="video/mp4" />
+              <source src="https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov" type="video/quicktime" />
+            </video>
 
             {/* Overlay with subtle gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
 
-            {/* Message icon overlay on hover */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
+            {/* Message icon overlay - always visible with slight transparency */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all duration-300">
               <MessageCircle className="w-8 h-8 text-white" />
             </div>
           </div>
