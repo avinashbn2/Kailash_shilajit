@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Image from 'next/image'
 import { Heart, Send } from 'lucide-react'
 
@@ -24,6 +24,7 @@ export default function CustomerVideoCard({
 }: CustomerVideoCardProps) {
   const [isLiked, setIsLiked] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const handleAddToBag = () => {
     setIsAdding(true)
@@ -33,11 +34,28 @@ export default function CustomerVideoCard({
     }, 1000)
   }
 
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = false
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = true
+    }
+  }
+
   return (
     <div className="flex flex-col w-[280px] sm:w-[320px] flex-shrink-0">
       {/* Video Container */}
-      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg">
+      <div
+        className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <video
+          ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
           loop

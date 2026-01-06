@@ -2,10 +2,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useState } from 'react'
-import { SlideContent } from './components/ContentVideoSlider'
 import { CustomerVideoCardProps } from './components/CustomerVideoCard'
 import HappyCustomersSection from './components/HappyCustomersSection'
 import { ProductCardProps } from './components/ProductCard'
+import { X, Volume2, VolumeX } from 'lucide-react'
 
 const sampleProducts: ProductCardProps[] = [
   {
@@ -55,62 +55,62 @@ const sampleProducts: ProductCardProps[] = [
   },
 ]
 
-const contentSlides: SlideContent[] = [
-  {
-    id: '1',
-    category: 'Skincare Essentials',
-    title: 'Discover Your Perfect Skincare Routine',
-    description: 'Transform your skin with our scientifically formulated products. Each ingredient is carefully selected to deliver visible results while being gentle on your skin.',
-    buttonText: 'Shop Skincare',
-    buttonLink: '/shop/skincare',
-    videoSource: '/videos/skincare-1.mp4'
-  },
-  {
-    id: '2',
-    category: 'New Arrivals',
-    title: 'Revolutionary Anti-Aging Collection',
-    description: 'Turn back time with our advanced anti-aging formulas. Featuring peptides, retinol, and hyaluronic acid for younger-looking skin.',
-    buttonText: 'Explore Collection',
-    buttonLink: '/shop/anti-aging',
-    videoSource: '/videos/anti-aging.mp4'
-  },
-  {
-    id: '3',
-    category: 'Natural Beauty',
-    title: 'Clean Beauty, Real Results',
-    description: 'Experience the power of nature with our organic, cruelty-free products. No harmful chemicals, just pure, effective ingredients.',
-    buttonText: 'Shop Natural',
-    buttonLink: '/shop/natural',
-    videoSource: '/videos/natural.mp4'
-  },
-  {
-    id: '4',
-    category: 'Sun Protection',
-    title: 'Ultimate Sun Defense',
-    description: 'Protect your skin from harmful UV rays with our broad-spectrum sunscreens. Lightweight, non-greasy formulas for daily use.',
-    buttonText: 'View Sunscreens',
-    buttonLink: '/shop/sun-protection',
-    videoSource: '/videos/sunscreen.mp4'
-  },
-  {
-    id: '5',
-    category: 'Hydration Heroes',
-    title: 'Deep Hydration Solutions',
-    description: 'Quench your skin\'s thirst with our intensive moisturizing treatments. Perfect for all skin types, especially dry and sensitive skin.',
-    buttonText: 'Shop Moisturizers',
-    buttonLink: '/shop/moisturizers',
-    videoSource: '/videos/hydration.mp4'
-  },
-  {
-    id: '6',
-    category: 'Exclusive Sets',
-    title: 'Complete Care Bundles',
-    description: 'Get everything you need in our curated sets. Save money while achieving your best skin with our expertly paired products.',
-    buttonText: 'Shop Bundles',
-    buttonLink: '/shop/bundles',
-    videoSource: '/videos/bundles.mp4'
-  }
-]
+// const contentSlides: SlideContent[] = [
+//   {
+//     id: '1',
+//     category: 'Skincare Essentials',
+//     title: 'Discover Your Perfect Skincare Routine',
+//     description: 'Transform your skin with our scientifically formulated products. Each ingredient is carefully selected to deliver visible results while being gentle on your skin.',
+//     buttonText: 'Shop Skincare',
+//     buttonLink: '/shop/skincare',
+//     videoSource: '/videos/skincare-1.mp4'
+//   },
+//   {
+//     id: '2',
+//     category: 'New Arrivals',
+//     title: 'Revolutionary Anti-Aging Collection',
+//     description: 'Turn back time with our advanced anti-aging formulas. Featuring peptides, retinol, and hyaluronic acid for younger-looking skin.',
+//     buttonText: 'Explore Collection',
+//     buttonLink: '/shop/anti-aging',
+//     videoSource: '/videos/anti-aging.mp4'
+//   },
+//   {
+//     id: '3',
+//     category: 'Natural Beauty',
+//     title: 'Clean Beauty, Real Results',
+//     description: 'Experience the power of nature with our organic, cruelty-free products. No harmful chemicals, just pure, effective ingredients.',
+//     buttonText: 'Shop Natural',
+//     buttonLink: '/shop/natural',
+//     videoSource: '/videos/natural.mp4'
+//   },
+//   {
+//     id: '4',
+//     category: 'Sun Protection',
+//     title: 'Ultimate Sun Defense',
+//     description: 'Protect your skin from harmful UV rays with our broad-spectrum sunscreens. Lightweight, non-greasy formulas for daily use.',
+//     buttonText: 'View Sunscreens',
+//     buttonLink: '/shop/sun-protection',
+//     videoSource: '/videos/sunscreen.mp4'
+//   },
+//   {
+//     id: '5',
+//     category: 'Hydration Heroes',
+//     title: 'Deep Hydration Solutions',
+//     description: 'Quench your skin\'s thirst with our intensive moisturizing treatments. Perfect for all skin types, especially dry and sensitive skin.',
+//     buttonText: 'Shop Moisturizers',
+//     buttonLink: '/shop/moisturizers',
+//     videoSource: '/videos/hydration.mp4'
+//   },
+//   {
+//     id: '6',
+//     category: 'Exclusive Sets',
+//     title: 'Complete Care Bundles',
+//     description: 'Get everything you need in our curated sets. Save money while achieving your best skin with our expertly paired products.',
+//     buttonText: 'Shop Bundles',
+//     buttonLink: '/shop/bundles',
+//     videoSource: '/videos/bundles.mp4'
+//   }
+// ]
 
 const customerVideos: CustomerVideoCardProps[] = [
   {
@@ -189,9 +189,59 @@ const customerVideos: CustomerVideoCardProps[] = [
 
 export default function Home() {
   const [modalVideoUrl, setModalVideoUrl] = useState<string | null>(null)
+  const [isVideoMuted, setIsVideoMuted] = useState(false)
   const previewVideoRef = useRef<HTMLVideoElement>(null)
+  const modalVideoRef = useRef<HTMLVideoElement>(null)
+  const featuredProductsRef = useRef<HTMLDivElement>(null)
+
+  const scrollToFeaturedProducts = () => {
+    if (featuredProductsRef.current) {
+      const targetPosition = featuredProductsRef.current.getBoundingClientRect().top + window.pageYOffset - 80
+      const startPosition = window.pageYOffset
+      const distance = targetPosition - startPosition
+      const duration = 1500 // 1.5 seconds for smooth scroll
+      let start: number | null = null
+
+      const animation = (currentTime: number) => {
+        if (start === null) start = currentTime
+        const timeElapsed = currentTime - start
+        const progress = Math.min(timeElapsed / duration, 1)
+
+        // Easing function for smooth acceleration and deceleration
+        const ease = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
+        window.scrollTo(0, startPosition + distance * ease)
+
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation)
+        }
+      }
+
+      requestAnimationFrame(animation)
+    }
+  }
+
+  const handleOpenModal = (videoUrl: string) => {
+    setModalVideoUrl(videoUrl)
+    setIsVideoMuted(false)
+  }
+
+  const handleCloseModal = () => {
+    setModalVideoUrl(null)
+    setIsVideoMuted(false)
+  }
+
+  const handleToggleMute = () => {
+    setIsVideoMuted(!isVideoMuted)
+    if (modalVideoRef.current) {
+      modalVideoRef.current.muted = !isVideoMuted
+    }
+  }
+
   return (
-    <div className='bg-[#FFFCF9]'>
+    <div className='bg-[#FFFCF9] overflow-x-hidden'>
 
       {/* Promotional Hero Section */}
       <section className="w-full bg-[#F5F2ED] py-12 md:py-16 lg:py-20 relative overflow-hidden">
@@ -213,16 +263,19 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-16">
-              <button className="bg-[#8A9C66] hover:bg-[#7a8a5a] text-white px-10 py-4 rounded-full font-semibold text-lg transition-colors cursor-pointer">
+              <button
+                onClick={scrollToFeaturedProducts}
+                className="bg-[#8A9C66] hover:bg-[#7a8a5a] text-white px-10 py-4 rounded-full font-semibold text-lg transition-colors cursor-pointer"
+              >
                 Shop Now
               </button>
             </div>
 
             {/* Product Images */}
             <div className="relative w-full max-w-4xl mt-8">
-              <div className="flex items-end justify-center gap-6">
+              <div className="flex items-end justify-center gap-3 md:gap-6">
                 {/* Product 1 - Left */}
-                <div className="w-48 md:w-56 lg:w-64 h-64  relative rounded-3xl shadow-2xl transform translate-y-8 overflow-hidden">
+                <div className="w-32 sm:w-48 md:w-56 lg:w-64 h-48 sm:h-64 relative rounded-3xl shadow-2xl transform translate-y-8 overflow-hidden">
                   <Image
                     src="/v2/IMG_0922.JPG"
                     alt="Product 1"
@@ -233,7 +286,7 @@ export default function Home() {
                 </div>
 
                 {/* Product 2 - Center (Larger) */}
-                <div className="w-56 md:w-64 lg:w-72 h-72 relative rounded-3xl shadow-2xl z-10 overflow-hidden">
+                <div className="w-40 sm:w-56 md:w-64 lg:w-72 h-56 sm:h-72 relative rounded-3xl shadow-2xl z-10 overflow-hidden">
                   <Image
                     src="/v2/IMG_0921.JPG"
                     alt="Product 2"
@@ -244,7 +297,7 @@ export default function Home() {
                 </div>
 
                 {/* Product 3 - Right */}
-                <div className="w-48 md:w-56 lg:w-64 h-64 relative rounded-3xl shadow-2xl transform translate-y-8 overflow-hidden">
+                <div className="w-32 sm:w-48 md:w-56 lg:w-64 h-48 sm:h-64 relative rounded-3xl shadow-2xl transform translate-y-8 overflow-hidden">
                   <Image
                     src="/v2/amrit_shot.png"
                     alt="Product 3"
@@ -266,14 +319,14 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 pb-16">
           <div className="bg-white/70 backdrop-blur-sm rounded-lg p-8">
-            <div className="grid grid-cols-2  items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
 
-{/* Video Section - Left */}
-<div className="relative">
+{/* Video Section - Mobile: Above, Desktop: Left */}
+<div className="relative order-1 lg:order-1">
   <div
-    className="relative aspect-[9/16] max-h-[700px] bg-gray-900 rounded-lg overflow-hidden cursor-pointer group"
-    onClick={() => setModalVideoUrl('https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov')}
+    className="relative aspect-[9/16] max-h-[700px] bg-gray-900 rounded-lg overflow-hidden cursor-pointer group mx-auto max-w-md lg:max-w-none"
+    onClick={() => handleOpenModal('https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov')}
   >
     <video
       ref={previewVideoRef}
@@ -297,12 +350,12 @@ export default function Home() {
   </div>
 </div>
 
-{/* Text Content - Right */}
+{/* Text Content - Mobile: Below, Desktop: Right */}
 
-<div className="space-y-">
+<div className="space-y- order-2 lg:order-2">
 
-  <div className="text-[#373436] text-lg leading-relaxed space-y-6">
-  <h2 className="font-bold text-2xl mb-4">The Kailash Promise: From Cliff to Capsule</h2>
+  <div className="text-[#373436] text-base md:text-lg leading-relaxed space-y-6">
+  <h2 className="font-bold text-xl md:text-2xl mb-4">The Kailash Promise: From Cliff to Capsule</h2>
   
   <ul className="space-y-4">
     <li className="flex ">
@@ -361,7 +414,7 @@ export default function Home() {
 
 
       {/* Featured Products Section */}
-      <section className="w-full py-16 bg-[#FFFCF9]">
+      <section ref={featuredProductsRef} className="w-full py-16 bg-[#FFFCF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-[#373436]">
             Featured Products
@@ -430,6 +483,73 @@ export default function Home() {
       />
 
       {/* <OurStorySection /> */}
+
+      {/* Video Modal */}
+      {modalVideoUrl && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/50 z-40 animate-fadeIn"
+            onClick={handleCloseModal}
+          />
+
+          {/* Video Container */}
+          <div className="fixed bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-[90vw] max-w-[500px] aspect-[9/16] z-50">
+            <div className="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-2xl">
+              <video
+                ref={modalVideoRef}
+                className="absolute inset-0 w-full h-full object-cover"
+                autoPlay
+                loop
+                muted={isVideoMuted}
+                playsInline
+                src={modalVideoUrl}
+              >
+                <source src={modalVideoUrl} type="video/mp4" />
+                <source src={modalVideoUrl} type="video/quicktime" />
+                Your browser does not support the video tag.
+              </video>
+
+              {/* Close button */}
+              <button
+                onClick={handleCloseModal}
+                className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/30 transition-colors"
+                aria-label="Close video"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+
+              {/* Mute/Unmute button */}
+              <button
+                onClick={handleToggleMute}
+                className="absolute bottom-4 right-4 p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/30 transition-colors"
+                aria-label={isVideoMuted ? "Unmute video" : "Mute video"}
+              >
+                {isVideoMuted ? (
+                  <VolumeX className="w-5 h-5 text-white" />
+                ) : (
+                  <Volume2 className="w-5 h-5 text-white" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <style jsx>{`
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+              }
+              to {
+                opacity: 1;
+              }
+            }
+
+            .animate-fadeIn {
+              animation: fadeIn 0.3s ease-in-out;
+            }
+          `}</style>
+        </>
+      )}
     </div>
   )
 }

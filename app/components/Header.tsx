@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, ShoppingCart, User, X } from 'lucide-react'
+import { Menu, Search, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -9,6 +9,7 @@ export default function Header() {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,7 +20,8 @@ export default function Header() {
     <>
       <header className="relative z-50 bg-[#373436] border-b border-[#373436]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-48">
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between h-32 lg:h-48">
             <div className="flex items-center flex-1">
               <div className={`flex items-center transition-all duration-300 ${isSearchExpanded ? 'flex-1 max-w-md' : ''}`}>
                 {!isSearchExpanded ? (
@@ -64,7 +66,15 @@ export default function Header() {
                   alt="Kailash Logo"
                   width={360}
                   height={120}
-                  className="object-contain"
+                  className="object-contain hidden lg:block"
+                  priority
+                />
+                <Image
+                  src="/logo.png"
+                  alt="Kailash Logo"
+                  width={240}
+                  height={80}
+                  className="object-contain block lg:hidden"
                   priority
                 />
               </Link>
@@ -76,7 +86,7 @@ export default function Header() {
                 className="flex items-center space-x-1 text-[#FFFCF9] hover:text-[#FFFCF9]/80 transition-colors"
               >
                 <User className="h-6 w-6" />
-                <span className="hidden sm:inline text-lg">Account</span>
+                <span className="hidden lg:inline text-lg">Account</span>
               </Link>
 
               <button
@@ -91,6 +101,72 @@ export default function Header() {
               </button>
             </div>
           </div>
+
+          {/* Mobile Header */}
+          <div className="flex md:hidden items-center justify-between h-20">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 hover:bg-[#FFFCF9]/10 rounded-lg transition-colors"
+              aria-label="Menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6 text-[#FFFCF9]" />
+              ) : (
+                <Menu className="h-6 w-6 text-[#FFFCF9]" />
+              )}
+            </button>
+
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Kailash Logo"
+                width={180}
+                height={60}
+                className="object-contain"
+                priority
+              />
+            </Link>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 hover:bg-[#FFFCF9]/10 rounded-full transition-colors"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingCart className="h-6 w-6 text-[#FFFCF9]" />
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#8A9C66] text-white text-xs rounded-full flex items-center justify-center">
+                  0
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden border-t border-[#FFFCF9]/20 py-4">
+              <div className="flex flex-col space-y-4">
+                <form onSubmit={handleSearchSubmit} className="w-full">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products..."
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A9C66] focus:border-transparent"
+                    />
+                  </div>
+                </form>
+                <Link
+                  href="/account"
+                  className="flex items-center space-x-2 text-[#FFFCF9] hover:text-[#FFFCF9]/80 transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                  <span>Account</span>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
