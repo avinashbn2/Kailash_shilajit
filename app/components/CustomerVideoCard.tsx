@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { Heart, Send, X, Volume2, VolumeX } from 'lucide-react'
 
 export interface CustomerVideoCardProps {
@@ -19,27 +19,20 @@ export default function CustomerVideoCard({
   const [isLiked, setIsLiked] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalMuted, setIsModalMuted] = useState(false)
-  const [isMobile, setIsMobile] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
   const modalVideoRef = useRef<HTMLVideoElement>(null)
 
   const handleMouseEnter = () => {
     if (videoRef.current && !isModalOpen) {
+      videoRef.current.play()
       videoRef.current.muted = false
+      videoRef.current.volume = 0.4
     }
   }
 
   const handleMouseLeave = () => {
     if (videoRef.current && !isModalOpen) {
+      videoRef.current.pause()
       videoRef.current.muted = true
     }
   }
@@ -47,6 +40,12 @@ export default function CustomerVideoCard({
   const handleOpenModal = () => {
     setIsModalOpen(true)
     setIsModalMuted(false)
+    // Set volume after a brief delay to ensure video is ready
+    setTimeout(() => {
+      if (modalVideoRef.current) {
+        modalVideoRef.current.volume = 0.4
+      }
+    }, 100)
   }
 
   const handleCloseModal = () => {
@@ -74,10 +73,10 @@ export default function CustomerVideoCard({
           <video
             ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover"
-            autoPlay={!isMobile}
             loop
             muted
             playsInline
+            preload="metadata"
             poster={thumbnailImage}
           >
             <source src={videoSource} type="video/mp4" />

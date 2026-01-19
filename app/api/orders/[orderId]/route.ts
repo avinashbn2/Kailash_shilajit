@@ -29,6 +29,7 @@ export async function GET(
       amount: order.amount,
       currency: order.currency,
       status: order.status,
+      paymentMethod: order.payment_method, // NEW - 'online' or 'cod'
       customerName: order.customer_name,
       customerEmail: order.customer_email,
       customerPhone: order.customer_phone,

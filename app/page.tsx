@@ -162,35 +162,35 @@ const fallbackProducts: Product[] = [
 const customerVideos: CustomerVideoCardProps[] = [
   {
     id: '1',
-    videoSource: '/v2/reviews/Abhishek_Shetty.mp4',
+    videoSource: 'https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto,w_480/v1768838975/Abhishek_Shetty_cogsfe.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Abhishek Shetty',
     description: 'Kailash Shilajit review'
   },
   {
     id: '2',
-    videoSource: '/v2/reviews/Arjun.mp4',
+    videoSource: 'https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto,w_480/v1768838937/Arjun_mwxxge.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Arjun',
     description: 'Kailash Shilajit review'
   },
   {
     id: '3',
-    videoSource: '/v2/reviews/Jeevanan%20K.mp4',
+    videoSource: 'https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto,w_480/v1768838964/Jeevanan_K_kxuz6z.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Jeevanan K',
     description: 'Kailash Shilajit review'
   },
   {
     id: '4',
-    videoSource: '/v2/reviews/SachinSuvarna.mp4',
+    videoSource: 'https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto,w_480/v1768838947/SachinSuvarna_qd1ttz.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Sachin Suvarna',
     description: 'Kailash Shilajit review'
   },
   {
     id: '5',
-    videoSource: '/v2/reviews/Vishwambar.mp4',
+    videoSource: 'https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto,w_480/v1768838940/Vishwambar_hj34wm.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Vishwambar',
     description: 'Kailash Shilajit review'
@@ -364,7 +364,7 @@ export default function Home() {
 <div className="relative order-1 lg:order-1">
   <div
     className="relative aspect-[9/16] max-h-[700px] bg-gray-900 rounded-lg overflow-hidden cursor-pointer group mx-auto max-w-md lg:max-w-none"
-    onClick={() => handleOpenModal('/v2/ShilajitDocumentry.mp4')}
+    onClick={() => handleOpenModal('https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto/v1768840347/ShilajitDocumentry_fc3z58.mp4')}
   >
     <video
       ref={previewVideoRef}
@@ -375,7 +375,7 @@ export default function Home() {
       playsInline
       preload="metadata"
     >
-      <source src="/v2/ShilajitDocumentry.mp4" type="video/mp4" />
+      <source src="https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto/v1768840347/ShilajitDocumentry_fc3z58.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 

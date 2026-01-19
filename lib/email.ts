@@ -1,15 +1,26 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import type { Order } from '@/types'
 
-// Lazy initialize Resend client to avoid build-time errors when API key is not set
-let resendClient: Resend | null = null
-function getResendClient(): Resend {
-  if (!resendClient) {
-    resendClient = new Resend(process.env.RESEND_API_KEY)
+// Create SMTP transporter
+let transporter: nodemailer.Transporter | null = null
+
+function getTransporter(): nodemailer.Transporter {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    })
   }
-  return resendClient
+  return transporter
 }
-const fromEmail = process.env.RESEND_FROM_EMAIL || 'orders@kailash.asia'
+
+const fromEmail = process.env.SMTP_FROM_EMAIL || 'orders@kailash.asia'
+const fromName = process.env.SMTP_FROM_NAME || 'Kailash.asia'
 
 /**
  * Send OTP email for verification
@@ -22,8 +33,8 @@ export async function sendOTPEmail(email: string, otp: string): Promise<void> {
   }
 
   try {
-    const { data, error } = await getResendClient().emails.send({
-      from: `Kailash.asia <${fromEmail}>`,
+    const info = await getTransporter().sendMail({
+      from: `${fromName} <${fromEmail}>`,
       to: email,
       subject: 'Your Verification Code - Kailash.asia',
       html: `
@@ -62,11 +73,7 @@ export async function sendOTPEmail(email: string, otp: string): Promise<void> {
       text: `Your OTP code is: ${otp}. This code will expire in 5 minutes. If you didn't request this code, please ignore this email.`,
     })
 
-    if (error) {
-      throw new Error(`Failed to send email: ${error.message}`)
-    }
-
-    console.log('[EMAIL] OTP sent successfully:', data?.id)
+    console.log('[EMAIL] OTP sent successfully:', info.messageId)
   } catch (error) {
     console.error('[EMAIL] Failed to send OTP:', error)
     throw error
@@ -91,6 +98,8 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       day: 'numeric',
     })
 
+    const isCOD = order.paymentMethod === 'cod' || order.status === 'cod_pending'
+
     const itemsHTML = order.items
       .map(
         (item) => `
@@ -100,15 +109,29 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
             <span style="color: #666; font-size: 14px;">Size: ${item.size} | Qty: ${item.quantity}</span>
           </td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
-            ₹${((item.price * item.quantity) / 100).toFixed(2)}
+            ₹${(item.price * item.quantity).toLocaleString('en-IN')}
           </td>
         </tr>
       `
       )
       .join('')
 
-    const { data, error } = await getResendClient().emails.send({
-      from: `Kailash.asia <${fromEmail}>`,
+    const paymentStatusMessage = isCOD
+      ? 'Your order has been placed successfully. Payment will be collected on delivery.'
+      : 'We\'ve received your payment and are preparing your items for shipment.'
+
+    const paymentStatusRow = isCOD
+      ? `<tr>
+          <td style="padding: 5px 0;"><strong>Payment Method:</strong></td>
+          <td style="padding: 5px 0; text-align: right;">Cash on Delivery</td>
+        </tr>`
+      : `<tr>
+          <td style="padding: 5px 0;"><strong>Payment ID:</strong></td>
+          <td style="padding: 5px 0; text-align: right;">${order.paymentId || 'N/A'}</td>
+        </tr>`
+
+    const info = await getTransporter().sendMail({
+      from: `${fromName} <${fromEmail}>`,
       to: order.customerEmail,
       subject: `Order Confirmation - #${order.orderId} | Kailash.asia`,
       html: `
@@ -125,8 +148,19 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
             </p>
 
             <p style="color: #373436; font-size: 16px; line-height: 1.5;">
-              We've received your payment and are preparing your items for shipment.
+              ${paymentStatusMessage}
             </p>
+
+            ${isCOD ? `
+            <div style="background-color: #FFF3CD; border: 1px solid #FFECB5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #856404; margin: 0; font-weight: bold;">
+                Cash on Delivery Order
+              </p>
+              <p style="color: #856404; margin: 5px 0 0 0; font-size: 14px;">
+                Please keep ₹${formattedAmount} ready at the time of delivery.
+              </p>
+            </div>
+            ` : ''}
 
             <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="color: #373436; margin-top: 0;">Order Summary</h3>
@@ -135,10 +169,7 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
                   <td style="padding: 5px 0;"><strong>Order ID:</strong></td>
                   <td style="padding: 5px 0; text-align: right;">${order.orderId}</td>
                 </tr>
-                <tr>
-                  <td style="padding: 5px 0;"><strong>Payment ID:</strong></td>
-                  <td style="padding: 5px 0; text-align: right;">${order.paymentId || 'N/A'}</td>
-                </tr>
+                ${paymentStatusRow}
                 <tr>
                   <td style="padding: 5px 0;"><strong>Order Date:</strong></td>
                   <td style="padding: 5px 0; text-align: right;">${orderDate}</td>
@@ -193,14 +224,15 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       text: `
 Thank you for your order, ${order.customerName}!
 
+${isCOD ? 'CASH ON DELIVERY ORDER - Please keep ₹' + formattedAmount + ' ready at the time of delivery.\n' : ''}
 ORDER SUMMARY
 Order ID: ${order.orderId}
-Payment ID: ${order.paymentId || 'N/A'}
+${isCOD ? 'Payment Method: Cash on Delivery' : 'Payment ID: ' + (order.paymentId || 'N/A')}
 Order Date: ${orderDate}
 Total Amount: ₹${formattedAmount}
 
 ITEMS ORDERED
-${order.items.map((item) => `- ${item.name} (${item.size}) × ${item.quantity} - ₹${((item.price * item.quantity) / 100).toFixed(2)}`).join('\n')}
+${order.items.map((item) => `- ${item.name} (${item.size}) × ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`).join('\n')}
 
 SHIPPING DETAILS
 ${order.customerName}
@@ -220,13 +252,146 @@ Thank you for shopping with Kailash.asia!
       `,
     })
 
-    if (error) {
-      throw new Error(`Failed to send order confirmation email: ${error.message}`)
-    }
-
-    console.log('[EMAIL] Order confirmation sent successfully:', data?.id)
+    console.log('[EMAIL] Order confirmation sent successfully:', info.messageId)
   } catch (error) {
     console.error('[EMAIL] Failed to send order confirmation:', error)
+    throw error
+  }
+}
+
+/**
+ * Send COD order alert to support team
+ */
+export async function sendCODOrderAlertToSupport(order: Order): Promise<void> {
+  // Skip in development mode if configured
+  if (process.env.SKIP_NOTIFICATIONS === 'true') {
+    console.log(`[DEV MODE] COD support alert for order ${order.orderId}`)
+    return
+  }
+
+  try {
+    const formattedAmount = (order.amount / 100).toFixed(2)
+    const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+
+    const itemsHTML = order.items
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">${item.name}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${item.size}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${item.quantity}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+        </tr>
+      `
+      )
+      .join('')
+
+    const supportEmail = process.env.SUPPORT_EMAIL || 'support@kailash.asia'
+
+    const info = await getTransporter().sendMail({
+      from: `${fromName} Orders <${fromEmail}>`,
+      to: supportEmail,
+      subject: `[COD ORDER] New COD Order #${order.orderId} - ₹${formattedAmount}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background-color: #FFF3CD; border: 1px solid #FFECB5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="color: #856404; margin: 0;">New Cash on Delivery Order</h2>
+          </div>
+
+          <h3 style="color: #373436; border-bottom: 2px solid #8A9C66; padding-bottom: 10px;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+              <td style="padding: 8px 0;"><strong>Order ID:</strong></td>
+              <td style="padding: 8px 0;">${order.orderId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Order Date:</strong></td>
+              <td style="padding: 8px 0;">${orderDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Total Amount:</strong></td>
+              <td style="padding: 8px 0; font-size: 18px; color: #8A9C66; font-weight: bold;">₹${formattedAmount}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Payment Method:</strong></td>
+              <td style="padding: 8px 0; color: #856404; font-weight: bold;">Cash on Delivery</td>
+            </tr>
+          </table>
+
+          <h3 style="color: #373436; border-bottom: 2px solid #8A9C66; padding-bottom: 10px;">Customer Information</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+              <td style="padding: 8px 0;"><strong>Name:</strong></td>
+              <td style="padding: 8px 0;">${order.customerName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Email:</strong></td>
+              <td style="padding: 8px 0;">${order.customerEmail}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Phone:</strong></td>
+              <td style="padding: 8px 0;">${order.customerPhone}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Address:</strong></td>
+              <td style="padding: 8px 0;">${order.shippingAddress}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>PIN Code:</strong></td>
+              <td style="padding: 8px 0;">${order.pinCode}</td>
+            </tr>
+          </table>
+
+          <h3 style="color: #373436; border-bottom: 2px solid #8A9C66; padding-bottom: 10px;">Items Ordered</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="background-color: #f5f5f5;">
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Product</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Size</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Qty</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Price</th>
+            </tr>
+            ${itemsHTML}
+          </table>
+
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <p style="margin: 0; color: #666;">
+              This is an automated notification. Please process this COD order accordingly.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `
+NEW CASH ON DELIVERY ORDER
+
+ORDER DETAILS
+Order ID: ${order.orderId}
+Order Date: ${orderDate}
+Total Amount: ₹${formattedAmount}
+Payment Method: Cash on Delivery
+
+CUSTOMER INFORMATION
+Name: ${order.customerName}
+Email: ${order.customerEmail}
+Phone: ${order.customerPhone}
+Address: ${order.shippingAddress}
+PIN Code: ${order.pinCode}
+
+ITEMS ORDERED
+${order.items.map((item) => `- ${item.name} (${item.size}) × ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`).join('\n')}
+
+This is an automated notification. Please process this COD order accordingly.
+      `,
+    })
+
+    console.log('[EMAIL] COD support alert sent successfully:', info.messageId)
+  } catch (error) {
+    console.error('[EMAIL] Failed to send COD support alert:', error)
     throw error
   }
 }

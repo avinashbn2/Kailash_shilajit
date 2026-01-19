@@ -46,6 +46,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { cart, clearCart } = useCart()
   const [isLoading, setIsLoading] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online')
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: '',
     email: '',
@@ -54,13 +55,14 @@ export default function CheckoutPage() {
     pinCode: ''
   })
   const [errors, setErrors] = useState<Partial<CheckoutFormData>>({})
+  const [orderPlaced, setOrderPlaced] = useState(false)
 
-  // Redirect if cart is empty
+  // Redirect if cart is empty (but not if order was just placed)
   useEffect(() => {
-    if (cart.items.length === 0) {
+    if (cart.items.length === 0 && !orderPlaced) {
       router.push('/')
     }
-  }, [cart.items, router])
+  }, [cart.items, router, orderPlaced])
 
   // Load Razorpay script
   useEffect(() => {
@@ -122,7 +124,70 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handlePayment = async () => {
+  // Handle COD order
+  const handleCODPayment = async () => {
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      // Format phone number before sending to backend
+      const formattedPhone = formData.phone.replace(/\D/g, '').length === 12 && formData.phone.replace(/\D/g, '').startsWith('91')
+        ? formData.phone.replace(/\D/g, '').substring(2)  // Remove country code
+        : formData.phone.replace(/\D/g, '');  // Just clean the number
+
+      const orderResponse = await fetch('/api/orders/cod', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: cart.total,
+          currency: 'INR',
+          customerData: {
+            ...formData,
+            phone: formattedPhone
+          },
+          items: cart.items
+        })
+      })
+
+      const responseData = await orderResponse.json()
+      console.log('COD Order Response:', responseData)
+
+      if (!orderResponse.ok) {
+        throw new Error(responseData.error || 'Failed to create COD order')
+      }
+
+      const { order } = responseData
+
+      if (!order || !order.id) {
+        console.error('No order ID in response:', responseData)
+        alert('Order created but no order ID received. Please check your orders.')
+        setIsLoading(false)
+        return
+      }
+
+      // Mark order as placed to prevent redirect to home when cart is cleared
+      setOrderPlaced(true)
+
+      // Clear cart
+      clearCart()
+
+      // Redirect to success page
+      const successUrl = `/order/success?orderId=${order.id}`
+      console.log('Redirecting to:', successUrl)
+      router.push(successUrl)
+
+    } catch (error) {
+      console.error('COD order error:', error)
+      alert('Failed to place COD order. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
+  // Handle online payment via Razorpay
+  const handleOnlinePayment = async () => {
     if (!validateForm()) {
       return
     }
@@ -186,6 +251,8 @@ export default function CheckoutPage() {
 
           if (verifyResponse.ok) {
             const { order } = await verifyResponse.json()
+            // Mark order as placed to prevent redirect to home
+            setOrderPlaced(true)
             // Clear cart
             clearCart()
             // Redirect to success page
@@ -208,6 +275,15 @@ export default function CheckoutPage() {
       console.error('Payment error:', error)
       alert('Failed to initiate payment. Please try again.')
       setIsLoading(false)
+    }
+  }
+
+  // Main payment handler - routes to COD or online payment
+  const handlePayment = async () => {
+    if (paymentMethod === 'cod') {
+      await handleCODPayment()
+    } else {
+      await handleOnlinePayment()
     }
   }
 
@@ -376,6 +452,45 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Payment Method Selection */}
+            <div className="mb-6 pt-4 border-t border-gray-200">
+              <h3 className="text-sm font-semibold text-[#373436] mb-3">Payment Method</h3>
+              <div className="space-y-3">
+                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                  paymentMethod === 'online' ? 'border-[#8A9C66] bg-[#8A9C66]/5' : 'border-gray-200 hover:border-gray-300'
+                }`}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="online"
+                    checked={paymentMethod === 'online'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'online' | 'cod')}
+                    className="w-4 h-4 text-[#8A9C66] focus:ring-[#8A9C66]"
+                  />
+                  <div className="flex-1">
+                    <span className="font-medium text-[#373436]">Pay Online</span>
+                    <p className="text-xs text-gray-500 mt-0.5">Credit/Debit Card, UPI, Net Banking</p>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                  paymentMethod === 'cod' ? 'border-[#8A9C66] bg-[#8A9C66]/5' : 'border-gray-200 hover:border-gray-300'
+                }`}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={paymentMethod === 'cod'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'online' | 'cod')}
+                    className="w-4 h-4 text-[#8A9C66] focus:ring-[#8A9C66]"
+                  />
+                  <div className="flex-1">
+                    <span className="font-medium text-[#373436]">Cash on Delivery</span>
+                    <p className="text-xs text-gray-500 mt-0.5">Pay when you receive your order</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             {/* Payment Button */}
             <button
               onClick={handlePayment}
@@ -390,7 +505,7 @@ export default function CheckoutPage() {
               ) : (
                 <>
                   <ShoppingBag className="w-5 h-5" />
-                  Proceed to Payment
+                  {paymentMethod === 'cod' ? 'Place Order (COD)' : 'Proceed to Payment'}
                 </>
               )}
             </button>
@@ -398,7 +513,11 @@ export default function CheckoutPage() {
             {/* Security Badge */}
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-600">
-                <span className="font-semibold">Secure Payment</span> powered by Razorpay
+                {paymentMethod === 'cod' ? (
+                  'You will pay on delivery'
+                ) : (
+                  <><span className="font-semibold">Secure Payment</span> powered by Razorpay</>
+                )}
               </p>
             </div>
           </div>

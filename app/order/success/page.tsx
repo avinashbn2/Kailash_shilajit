@@ -1,22 +1,24 @@
 'use client'
 
 import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CheckCircle, Package, Mail, Phone, MapPin } from 'lucide-react'
+import { CheckCircle, Package, Mail, Phone, MapPin, Home, ShoppingBag } from 'lucide-react'
 import { Order } from '@/types'
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const orderId = searchParams.get('orderId')
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // If no orderId, show generic success (don't redirect)
     if (!orderId) {
-      router.push('/')
+      setLoading(false)
+      setError('no-order-id')
       return
     }
 
@@ -27,16 +29,19 @@ function OrderSuccessContent() {
         if (response.ok) {
           const data = await response.json()
           setOrder(data)
+        } else {
+          setError('Could not load order details')
         }
-      } catch (error) {
-        console.error('Failed to fetch order:', error)
+      } catch (err) {
+        console.error('Failed to fetch order:', err)
+        setError('Failed to load order')
       } finally {
         setLoading(false)
       }
     }
 
     fetchOrder()
-  }, [orderId, router])
+  }, [orderId])
 
   if (loading) {
     return (
@@ -49,73 +54,116 @@ function OrderSuccessContent() {
     )
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <div className="min-h-screen bg-[#FFFCF9] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[#373436]">Order not found</p>
-          <Link href="/" className="text-[#8A9C66] hover:underline mt-4 inline-block">
-            Return to Home
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
+            <CheckCircle className="w-12 h-12 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-[#373436] mb-4">Order Placed Successfully!</h1>
+          <p className="text-gray-600 mb-6">
+            Your order has been received. You will receive a confirmation email shortly.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 bg-[#8A9C66] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#7a8a5a] transition-colors"
+          >
+            <Home className="w-5 h-5" />
+            Continue Shopping
           </Link>
         </div>
       </div>
     )
   }
 
+  const isCOD = order.paymentMethod === 'cod' || order.status === 'cod_pending'
+  const formattedAmount = (order.amount / 100).toLocaleString('en-IN')
+
   return (
-    <div className="min-h-screen bg-[#FFFCF9] py-12">
+    <div className="min-h-screen bg-[#FFFCF9] py-8 md:py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Success Icon */}
+        {/* Success Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4 animate-bounce">
             <CheckCircle className="w-12 h-12 text-green-600" />
           </div>
-          <h1 className="text-3xl font-bold text-[#373436] mb-2">Order Placed Successfully!</h1>
-          <p className="text-gray-600">Thank you for your purchase</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-[#373436] mb-2">Order Placed Successfully!</h1>
+          <p className="text-gray-600 text-lg">
+            {isCOD ? 'Your Cash on Delivery order has been confirmed' : 'Thank you for your purchase'}
+          </p>
         </div>
 
+        {/* COD Notice */}
+        {isCOD && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <span className="text-3xl">💵</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-amber-800 text-lg">Cash on Delivery</h3>
+                <p className="text-amber-700 mt-1">
+                  Please keep <span className="font-bold">₹{formattedAmount}</span> ready at the time of delivery.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Order Details Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-lg p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Package className="w-5 h-5 text-[#8A9C66]" />
-            <h2 className="text-xl font-semibold text-[#373436]">Order Details</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
+            <Package className="w-6 h-6 text-[#8A9C66]" />
+            <h2 className="text-xl font-bold text-[#373436]">Order Details</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <p className="text-sm text-gray-600">Order ID</p>
-              <p className="font-semibold text-[#373436]">{order.orderId}</p>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Order ID</p>
+              <p className="font-bold text-[#373436] text-sm mt-1 break-all">{order.orderId}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Payment ID</p>
-              <p className="font-semibold text-[#373436]">{order.paymentId}</p>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">{isCOD ? 'Payment Method' : 'Payment ID'}</p>
+              <p className="font-bold text-[#373436] text-sm mt-1">
+                {isCOD ? 'Cash on Delivery' : (order.paymentId || 'N/A')}
+              </p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Amount Paid</p>
-              <p className="font-semibold text-[#373436]">₹{(order.amount / 100).toLocaleString()}</p>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">{isCOD ? 'Amount to Pay' : 'Amount Paid'}</p>
+              <p className="font-bold text-[#8A9C66] text-lg mt-1">₹{formattedAmount}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Date</p>
-              <p className="font-semibold text-[#373436]">
-                {new Date(order.createdAt).toLocaleDateString('en-IN')}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Order Date</p>
+              <p className="font-bold text-[#373436] text-sm mt-1">
+                {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
               </p>
             </div>
           </div>
 
           {/* Order Items */}
-          <div className="border-t pt-4">
-            <h3 className="font-semibold text-[#373436] mb-3">Items Ordered</h3>
-            <div className="space-y-3">
-              {order.items.map(item => (
-                <div key={item.id} className="flex gap-4">
-                  <div className="relative w-16 h-16 flex-shrink-0 bg-white rounded-lg overflow-hidden">
-                    <Image src={item.image} alt={item.name} fill className="object-contain" />
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="font-bold text-[#373436] mb-4">Items Ordered</h3>
+            <div className="space-y-4">
+              {order.items.map((item, index) => (
+                <div key={item.id || index} className="flex gap-4 bg-gray-50 rounded-lg p-3">
+                  <div className="relative w-16 h-16 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-gray-100">
+                    <Image
+                      src={item.image || '/placeholder.png'}
+                      alt={item.name}
+                      fill
+                      className="object-contain"
+                    />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-[#373436] text-sm">{item.name}</p>
-                    <p className="text-xs text-gray-600">Size: {item.size} | Qty: {item.quantity}</p>
-                    <p className="text-sm font-bold text-[#373436]">
-                      ₹{(item.price * item.quantity).toLocaleString()}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-[#373436] text-sm line-clamp-2">{item.name}</p>
+                    <p className="text-xs text-gray-500 mt-1">Size: {item.size} | Qty: {item.quantity}</p>
+                    <p className="text-sm font-bold text-[#8A9C66] mt-1">
+                      ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                     </p>
                   </div>
                 </div>
@@ -125,49 +173,86 @@ function OrderSuccessContent() {
         </div>
 
         {/* Shipping Details Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-[#373436] mb-4">Shipping Details</h2>
-          <div className="space-y-3">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <h2 className="text-xl font-bold text-[#373436] mb-4">Shipping Details</h2>
+          <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-[#8A9C66] mt-0.5" />
+              <div className="w-10 h-10 bg-[#8A9C66]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-[#8A9C66]" />
+              </div>
               <div>
-                <p className="text-sm text-gray-600">Email</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Email</p>
                 <p className="font-semibold text-[#373436]">{order.customerEmail}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Phone className="w-5 h-5 text-[#8A9C66] mt-0.5" />
+              <div className="w-10 h-10 bg-[#8A9C66]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <Phone className="w-5 h-5 text-[#8A9C66]" />
+              </div>
               <div>
-                <p className="text-sm text-gray-600">Phone</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Phone</p>
                 <p className="font-semibold text-[#373436]">{order.customerPhone}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-[#8A9C66] mt-0.5" />
+              <div className="w-10 h-10 bg-[#8A9C66]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-[#8A9C66]" />
+              </div>
               <div>
-                <p className="text-sm text-gray-600">Shipping Address</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Shipping Address</p>
                 <p className="font-semibold text-[#373436]">{order.shippingAddress}</p>
-                <p className="font-semibold text-[#373436]">PIN: {order.pinCode}</p>
+                <p className="text-sm text-gray-600">PIN: {order.pinCode}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Confirmation Email Notice */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-blue-800">
-            📧 A confirmation email has been sent to <strong>{order.customerEmail}</strong>
-          </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📧</span>
+            <div>
+              <p className="font-semibold text-blue-800">Confirmation Email Sent</p>
+              <p className="text-sm text-blue-700 mt-1">
+                A confirmation email has been sent to <strong>{order.customerEmail}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* What's Next */}
+        <div className="bg-[#8A9C66]/10 rounded-xl p-6 mb-6">
+          <h3 className="font-bold text-[#373436] mb-3">What&apos;s Next?</h3>
+          <ol className="space-y-2 text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="bg-[#8A9C66] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+              <span>Your order is being processed</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="bg-[#8A9C66] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+              <span>You&apos;ll receive a shipping confirmation within 24-48 hours</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="bg-[#8A9C66] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">3</span>
+              <span>Track your order via the tracking link in your email</span>
+            </li>
+          </ol>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href="/"
-            className="flex-1 bg-[#8A9C66] text-white py-3 rounded-lg font-semibold hover:bg-[#7a8a5a] transition-colors text-center"
+            className="flex-1 bg-[#8A9C66] text-white py-4 rounded-xl font-semibold hover:bg-[#7a8a5a] transition-colors text-center flex items-center justify-center gap-2"
           >
+            <ShoppingBag className="w-5 h-5" />
             Continue Shopping
           </Link>
+        </div>
+
+        {/* Support */}
+        <div className="text-center mt-8 text-sm text-gray-500">
+          <p>Need help? Contact us at <a href="mailto:support@kailash.asia" className="text-[#8A9C66] font-semibold hover:underline">support@kailash.asia</a></p>
         </div>
       </div>
     </div>

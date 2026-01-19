@@ -31,6 +31,7 @@ export async function GET(
       images: product.images,
       sizes: product.sizes,
       currentSize: product.current_size,
+      sizeVariants: product.size_variants, // NEW - different prices per size
       rating: product.rating,
       reviewCount: product.review_count,
       questionCount: product.question_count,

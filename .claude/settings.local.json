@@ -20,7 +20,8 @@
       "Bash(curl:*)",
       "Bash(node:*)",
       "Bash(npx tsc:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

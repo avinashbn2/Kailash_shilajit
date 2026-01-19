@@ -1,3 +1,10 @@
+// Size Variant Type
+export interface SizeVariant {
+  size: string
+  price: number
+  mrp: number
+}
+
 // Product Types
 export interface Product {
   id: string
@@ -8,6 +15,7 @@ export interface Product {
   images: string[]
   sizes: string[]
   currentSize: string
+  sizeVariants?: SizeVariant[] // NEW - different prices per size
   rating: number
   reviewCount: number
   questionCount: number
@@ -53,11 +61,12 @@ export interface CheckoutFormData {
 // Order Types
 export interface Order {
   id: string
-  orderId: string // Razorpay order ID
-  paymentId?: string // Razorpay payment ID
+  orderId: string // Razorpay order ID or COD order ID
+  paymentId?: string // Razorpay payment ID (null for COD)
   amount: number
   currency: string
-  status: 'created' | 'paid' | 'failed'
+  status: 'created' | 'paid' | 'failed' | 'cod_pending'
+  paymentMethod?: 'online' | 'cod' // Payment method: online or cash on delivery
   customerName: string
   customerEmail: string
   customerPhone: string

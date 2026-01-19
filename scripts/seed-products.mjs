@@ -29,6 +29,10 @@ const products = [
     images: ['/v2/shilajit/1.JPG', '/v2/shilajit/2.JPG', '/v2/shilajit/3.JPG', '/v2/shilajit/4.JPG'],
     sizes: ['12g', '25g'],
     current_size: '25g',
+    size_variants: [
+      { size: '12g', price: 2500, mrp: 2999 },
+      { size: '25g', price: 4500, mrp: 5000 }
+    ],
     rating: 5.0,
     review_count: 55,
     question_count: 13,
@@ -60,6 +64,10 @@ const products = [
     images: ['/v2/ladoos/1.JPG', '/v2/ladoos/2.JPG', '/v2/ladoos/3.JPG', '/v2/ladoos/4.JPG', '/v2/ladoos/5.JPG', '/v2/ladoos/6.JPG'],
     sizes: ['30 count', '60 count'],
     current_size: '30 count',
+    size_variants: [
+      { size: '30 count', price: 2999, mrp: 3499 },
+      { size: '60 count', price: 5499, mrp: 6499 }
+    ],
     rating: 4.8,
     review_count: 256,
     question_count: 8,
@@ -89,6 +97,10 @@ const products = [
     images: ['/v2/pct/1.JPG', '/v2/pct/2.JPG', '/v2/pct/3.JPG', '/v2/pct/4.JPG'],
     sizes: ['30 count', '60 count'],
     current_size: '30 count',
+    size_variants: [
+      { size: '30 count', price: 1999, mrp: 2499 },
+      { size: '60 count', price: 3499, mrp: 4499 }
+    ],
     rating: 4.5,
     review_count: 89,
     question_count: 8,
@@ -118,6 +130,10 @@ const products = [
     images: ['/v2/amrit_shot.png'],
     sizes: ['30 count', '60 count'],
     current_size: '30 count',
+    size_variants: [
+      { size: '30 count', price: 3500, mrp: 4000 },
+      { size: '60 count', price: 6500, mrp: 7500 }
+    ],
     rating: 4.6,
     review_count: 178,
     question_count: 8,

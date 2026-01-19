@@ -1,4 +1,7 @@
-import { sendOrderConfirmationEmail } from './email'
+import { sendOrderConfirmationEmail, sendCODOrderAlertToSupport } from './email'
+
+// Re-export for use in API routes
+export { sendCODOrderAlertToSupport }
 import { sendOrderSMS } from './sms'
 import { retryWithBackoff } from './retry'
 import type { Order, NotificationStatus } from '@/types'

@@ -16,8 +16,8 @@ export async function sendOTPSMS(phone: string, otp: string): Promise<void> {
   }
 
   if (!MSG91_AUTH_KEY || !MSG91_OTP_TEMPLATE_ID) {
-    console.warn('[SMS] MSG91 credentials not configured, skipping SMS')
-    return
+    console.log('[SMS] MSG91 credentials not configured, skipping SMS')
+    throw new Error('SMS not configured - MSG91 credentials missing')
   }
 
   try {
@@ -63,8 +63,8 @@ export async function sendOrderSMS(order: Order): Promise<void> {
   }
 
   if (!MSG91_AUTH_KEY || !MSG91_ORDER_TEMPLATE_ID) {
-    console.warn('[SMS] MSG91 credentials not configured, skipping SMS')
-    return
+    console.log('[SMS] MSG91 credentials not configured, skipping SMS')
+    throw new Error('SMS not configured - MSG91 credentials missing')
   }
 
   try {

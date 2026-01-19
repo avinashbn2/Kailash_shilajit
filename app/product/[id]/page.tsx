@@ -2,7 +2,7 @@
 
 import { useCart } from '@/contexts/CartContext'
 import { validateIndianPostalCode } from '@/lib/validation'
-import { Product } from '@/types'
+import { Product, SizeVariant } from '@/types'
 import { ChevronRight, Gift, Heart, Minus, Plus, Sparkles, Star, Volume2, VolumeX, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -18,6 +18,7 @@ const productsDatabase: Record<string, {
   mrp: number
   sizes: string[]
   currentSize: string
+  sizeVariants: SizeVariant[]
   rating: number
   reviewCount: number
   questionCount: number
@@ -38,6 +39,10 @@ const productsDatabase: Record<string, {
     mrp: 5000,
     sizes: ['12g', '25g'],
     currentSize: '25g',
+    sizeVariants: [
+      { size: '12g', price: 2500, mrp: 2999 },
+      { size: '25g', price: 4500, mrp: 5000 },
+    ],
     rating: 5,
     reviewCount: 55,
     questionCount: 13,
@@ -74,6 +79,10 @@ const productsDatabase: Record<string, {
     mrp: 3499,
     sizes: ['30 count', '60 count'],
     currentSize: '30 count',
+    sizeVariants: [
+      { size: '30 count', price: 2999, mrp: 3499 },
+      { size: '60 count', price: 5499, mrp: 6499 },
+    ],
     rating: 4.8,
     reviewCount: 256,
     questionCount: 8,
@@ -89,157 +98,173 @@ const productsDatabase: Record<string, {
     inStock: true,
     whatIsIt: 'Kailash Shilajit Ladoos (270g | Pack of 30) are energy-dense wellness bites crafted from 100% pure Himalayan Shilajit resin, collected after a 1.5-day trek into the high ranges. We blend this ancient resin only with raw Himalayan forest honey and premium dry fruits — no heat, no sugar, no chemicals, no compromise. A ritual of endurance, purity, and honesty — rolled into one timeless Ladoo.',
     whatDoesItDo: [
-
       'Fuels natural long-lasting energy',
       'Supports strength, stamina & vitality',
       'Helps mineral recharge & workout recovery',
       'Enriched with fulvic compounds for immunity & clarity'
     ],
-    ourPromise: 'Ancient source. Hand harvested. Sun purified. No heat. No sugar. No chemicals. No compromise', 
+    ourPromise: 'Ancient source. Hand harvested. Sun purified. No heat. No sugar. No chemicals. No compromise',
     usage: [
       'Take 1 ladoo daily',
       'Eat after breakfast or 30 min before workout',
       'Pair with warm milk or lukewarm water',
-    ],  },
-    '3': {
-      id: '3',
-      name: 'Kailash Shilajit PCT Capsules - Pack of 30',
-      shortDescription: 'Kailash Shilajit PCT Capsules are a 30-day Ayurvedic recovery formula powered by pure mineral-rich Himalayan Shilajit and 11 restorative herbs. Made for those who train hard and recover naturally — no fillers, no sugar, no steroids, no mixing.',
-      price: 2999,
-      mrp: 3499,
-      sizes: ['30 count', '60 count'],
-      currentSize: '30 count',
-      rating: 4.8,
-      reviewCount: 256,
-      questionCount: 8,
-      answerCount: 15,
-      images: [
-        '/v2/pct/1.JPG',
-        '/v2/pct/2.JPG',
-        '/v2/pct/3.JPG',
-        '/v2/pct/4.JPG',
-      ],
-      inStock: true,
-      whatIsIt: 'Kailash Shilajit PCT Capsules are rooted in the wisdom of 11-herb Ayurvedic recovery science and powered by mineral-rich, pure Himalayan Shilajit. Crafted without fillers, synthetics, or any form of mixing, this formula is designed as a daily recovery ritual — supporting restoration, balance, and real strength, not a temporary energy boost.',
-      whatDoesItDo: [
-        	'Restores energy after intense training',
-        	'Supports hormonal balance & recovery',
-        	'Helps muscle stress & post-workout fatigue',
-        	'Aids mineral recharge & liver restoration',
-      ],
-      ourPromise: '100% natural recovery. 0% compromise. No steroids. No sugar. No artificial enhancers. Only clean ingredients that rebuild, recover, and restore — the pure way', 
-      usage: [
-        'Take 1 capsule daily (after breakfast or post-workout',
-	      'Swallow with water or warm milk',
-      'Max 2 capsules/day (do not exceed',
-      ],  },
-      '4': {
-        id: '4',
-        name: 'Kailash Amrit Shots – Pack of 30',
-        shortDescription: 'Kailash Amrit Shots is a 30-day wellness ritual powered by pure Himalayan forest honey and authentic Shilajit resin. Each 10ml shot delivers natural energy, stamina, and mineral richness in its raw, unheated, and uncompromised form. No sugar, no additives, no mixing — just real Himalayan vitality in every bottle.',
-        price: 2999,
-        mrp: 3499,
-        sizes: ['30 count', '60 count'],
-        currentSize: '30 count',
-        rating: 4.8,
-        reviewCount: 256,
-        questionCount: 8,
-        answerCount: 15,
-        images: [
-         '/v2/amrit_shot.png',
-        ],
-        inStock: true,
-        whatIsIt: 'Kailash Amrit Shots is a 30-day wellness ritual packed in 10ml shot bottles, crafted using pure Himalayan forest honey and authentic Shilajit resin. Sourced from the high Himalayas after a 1.5-day mountain trek, each bottle carries raw minerals and fulvic richness in its natural form, untouched by heat or artificial additives.',
-        whatDoesItDo: [
-            'Provides steady, long-lasting natural energy',
-'Supports stamina, endurance & strength',
-'Helps recover from daily fatigue & intense workouts',
-'Recharges the body with essential trace minerals',
-'Supports immunity & overall wellbeing',
-'Enhances mental clarity, focus & vitality',
-
-        ],
-        ourPromise: 'We keep it real because nature already made it perfect. No heat processing, no added sugar, no fillers, no artificial enhancers, and no mixing. Just two pure Himalayan elements sealed in every bottle with one oath — 100% Pure. 0% Mixing. 0% Compromise.',
-        usage: [
-          'Take 1 shot daily (after breakfast or post-workout)',
-          'Consume directly or mix with water',
-          'Max 2 shots/day (do not exceed)',
-        ],
-      },
-      '5': {
-        id: '5',
-        name: 'Kailash Sea Buckthorn Capsules – 30 Capsules',
-        shortDescription: 'From wild Himalayan berries → gently processed & encapsulated → delivered with complete purity.',
-        price: 1499,
-        mrp: 1799,
-        sizes: ['30 capsules', '60 capsules'],
-        currentSize: '30 capsules',
-        rating: 4.7,
-        reviewCount: 42,
-        questionCount: 5,
-        answerCount: 8,
-        images: [
-          '/v2/sbt_capsules/1.JPG',
-          '/v2/sbt_capsules/2.JPG',
-          '/v2/sbt_capsules/3.JPG',
-          '/v2/sbt_capsules/4.JPG',
-          '/v2/sbt_capsules/5.JPG',
-        ],
-        inStock: true,
-        whatIsIt: 'Kailash Sea Buckthorn Capsules are made from 100% pure Himalayan Sea Buckthorn berries, wild-grown in the pristine high-altitude regions of the Himalayas. The berries are carefully handpicked at peak ripeness, gently processed into pulp, and then encapsulated to preserve their natural potency. Free from chemicals, dilution, and unnecessary processing, these capsules deliver Sea Buckthorn\'s full-spectrum nutrients — antioxidants, omega fatty acids, and essential vitamins — in a clean, convenient daily form, backed by complete purity, transparency, and trust.',
-        whatDoesItDo: [
-          'Natural Energy & Immunity Boost – supports sustained vitality and everyday resilience',
-          'Skin, Gut & Cellular Repair – nourishes the body from within with powerful antioxidants',
-          'Heart & Metabolic Support – helps maintain healthy circulation and internal balance',
-          'Omega-Rich Superfruit Nutrition – delivers rare omegas, vitamins, and minerals for complete wellness',
-        ],
-        ourPromise: '100% Pure. 0% Dilution. 0% Compromise. Carefully processed to retain nutrients. No colorants. No flavoring agents. Just potent Himalayan Sea Buckthorn, encapsulated exactly as nature intends.',
-        usage: [
-          'Take 1–2 capsules daily with water',
-          'Consume after breakfast or before workout',
-          'Swallow whole — do not open or chew the capsule',
-          'Use consistently for best results',
-          'Store the bottle in a cool, dry place, away from direct sunlight',
-        ],
-        whatMakesItSpecial: 'Our Sea Buckthorn is not farmed — it is wild-harvested. We journey deep into high-altitude Himalayan valleys where harsh winters, thin air, and untouched terrain shape extraordinary nutrition. Thriving naturally along cold riverbanks and rugged land, these berries develop exceptional strength and potency. Each berry is handpicked by local mountain families, gently processed using traditional methods, and carefully encapsulated — no heat abuse, no shortcuts, no compromise.\n\nRare fruit. Ancient land. Pure nutrition. Complete trust.',
-      },
-      '6': {
-        id: '6',
-        name: 'Kailash Sea Buckthorn Pulp – 500ml',
-        shortDescription: 'From wild Himalayan berries → gently pulped at source → delivered in its pure, natural form.',
-        price: 1299,
-        mrp: 1599,
-        sizes: ['500ml', '1000ml'],
-        currentSize: '500ml',
-        rating: 4.8,
-        reviewCount: 67,
-        questionCount: 6,
-        answerCount: 10,
-        images: [
-          '/v2/sbt_pulp/1.JPG',
-          '/v2/sbt_pulp/2.JPG',
-          '/v2/sbt_pulp/3.JPG',
-          '/v2/sbt_pulp/4.JPG',
-          '/v2/sbt_pulp/5.JPG',
-        ],
-        inStock: true,
-        whatIsIt: 'Kailash Sea Buckthorn Pulp is a 100% pure Himalayan superfruit extract made from wild-grown Sea Buckthorn berries harvested in the pristine high-altitude regions of the Himalayas. The berries are carefully handpicked at peak ripeness, gently pulped without chemicals or artificial additives, and preserved in their natural form to retain maximum nutrients. Rich in antioxidants, omega fatty acids, and vital vitamins, this pulp is delivered fresh with complete purity, transparency, and trust.',
-        whatDoesItDo: [
-          'Natural Energy & Immunity Boost – supports long-lasting vitality and daily resilience',
-          'Skin, Gut & Cellular Repair – nourishes from within with powerful antioxidants',
-          'Heart & Metabolic Support – helps maintain healthy circulation and balance',
-          'Omega-Rich Superfruit Nutrition – delivers rare omegas, vitamins, and minerals for complete wellness',
-        ],
-        ourPromise: '100% Pure. 0% Dilution. 0% Compromise. Cold-processed to preserve nutrients. No colorants. No flavoring agents. Just potent Himalayan Sea Buckthorn pulp, exactly as nature creates it.',
-        usage: [
-          'Take 1–2 teaspoons (5–10 ml) of Sea Buckthorn pulp using a clean spoon',
-          'Consume directly or mix with lukewarm water or juice (do not boil)',
-          'Stir gently until well blended',
-          'Drink once daily — preferably after breakfast or before workout',
-          'Store bottle in a cool, dry place and refrigerate after opening',
-        ],
-        whatMakesItSpecial: 'Our Sea Buckthorn is not farmed — it is wild-harvested. We journey deep into the high-altitude Himalayan valleys where the air is thin, winters are harsh, and the land remains untouched. Growing naturally along cold riverbanks and rugged terrain, these berries survive extreme conditions, making them exceptionally potent. Each berry is handpicked by local mountain families at peak ripeness, gently pulped using traditional methods, and preserved in its raw form — no heat, no shortcuts, no compromise.\n\nRare fruit. Harsh land. Pure nutrition. Complete trust.',
-      }
+    ],
+  },
+  '3': {
+    id: '3',
+    name: 'Kailash Shilajit PCT Capsules - Pack of 30',
+    shortDescription: 'Kailash Shilajit PCT Capsules are a 30-day Ayurvedic recovery formula powered by pure mineral-rich Himalayan Shilajit and 11 restorative herbs. Made for those who train hard and recover naturally — no fillers, no sugar, no steroids, no mixing.',
+    price: 2999,
+    mrp: 3499,
+    sizes: ['30 count', '60 count'],
+    currentSize: '30 count',
+    sizeVariants: [
+      { size: '30 count', price: 1999, mrp: 2499 },
+      { size: '60 count', price: 3499, mrp: 4499 },
+    ],
+    rating: 4.8,
+    reviewCount: 256,
+    questionCount: 8,
+    answerCount: 15,
+    images: [
+      '/v2/pct/1.JPG',
+      '/v2/pct/2.JPG',
+      '/v2/pct/3.JPG',
+      '/v2/pct/4.JPG',
+    ],
+    inStock: true,
+    whatIsIt: 'Kailash Shilajit PCT Capsules are rooted in the wisdom of 11-herb Ayurvedic recovery science and powered by mineral-rich, pure Himalayan Shilajit. Crafted without fillers, synthetics, or any form of mixing, this formula is designed as a daily recovery ritual — supporting restoration, balance, and real strength, not a temporary energy boost.',
+    whatDoesItDo: [
+      'Restores energy after intense training',
+      'Supports hormonal balance & recovery',
+      'Helps muscle stress & post-workout fatigue',
+      'Aids mineral recharge & liver restoration',
+    ],
+    ourPromise: '100% natural recovery. 0% compromise. No steroids. No sugar. No artificial enhancers. Only clean ingredients that rebuild, recover, and restore — the pure way',
+    usage: [
+      'Take 1 capsule daily (after breakfast or post-workout)',
+      'Swallow with water or warm milk',
+      'Max 2 capsules/day (do not exceed)',
+    ],
+  },
+  '4': {
+    id: '4',
+    name: 'Kailash Amrit Shots – Pack of 30',
+    shortDescription: 'Kailash Amrit Shots is a 30-day wellness ritual powered by pure Himalayan forest honey and authentic Shilajit resin. Each 10ml shot delivers natural energy, stamina, and mineral richness in its raw, unheated, and uncompromised form. No sugar, no additives, no mixing — just real Himalayan vitality in every bottle.',
+    price: 2999,
+    mrp: 3499,
+    sizes: ['30 count', '60 count'],
+    currentSize: '30 count',
+    sizeVariants: [
+      { size: '30 count', price: 3500, mrp: 4000 },
+      { size: '60 count', price: 6500, mrp: 7500 },
+    ],
+    rating: 4.8,
+    reviewCount: 256,
+    questionCount: 8,
+    answerCount: 15,
+    images: [
+      '/v2/amrit_shot.png',
+    ],
+    inStock: true,
+    whatIsIt: 'Kailash Amrit Shots is a 30-day wellness ritual packed in 10ml shot bottles, crafted using pure Himalayan forest honey and authentic Shilajit resin. Sourced from the high Himalayas after a 1.5-day mountain trek, each bottle carries raw minerals and fulvic richness in its natural form, untouched by heat or artificial additives.',
+    whatDoesItDo: [
+      'Provides steady, long-lasting natural energy',
+      'Supports stamina, endurance & strength',
+      'Helps recover from daily fatigue & intense workouts',
+      'Recharges the body with essential trace minerals',
+      'Supports immunity & overall wellbeing',
+      'Enhances mental clarity, focus & vitality',
+    ],
+    ourPromise: 'We keep it real because nature already made it perfect. No heat processing, no added sugar, no fillers, no artificial enhancers, and no mixing. Just two pure Himalayan elements sealed in every bottle with one oath — 100% Pure. 0% Mixing. 0% Compromise.',
+    usage: [
+      'Take 1 shot daily (after breakfast or post-workout)',
+      'Consume directly or mix with water',
+      'Max 2 shots/day (do not exceed)',
+    ],
+  },
+  '5': {
+    id: '5',
+    name: 'Kailash Sea Buckthorn Capsules – 30 Capsules',
+    shortDescription: 'From wild Himalayan berries → gently processed & encapsulated → delivered with complete purity.',
+    price: 1499,
+    mrp: 1799,
+    sizes: ['30 capsules', '60 capsules'],
+    currentSize: '30 capsules',
+    sizeVariants: [
+      { size: '30 capsules', price: 1499, mrp: 1799 },
+      { size: '60 capsules', price: 2799, mrp: 3299 },
+    ],
+    rating: 4.7,
+    reviewCount: 42,
+    questionCount: 5,
+    answerCount: 8,
+    images: [
+      '/v2/sbt_capsules/1.JPG',
+      '/v2/sbt_capsules/2.JPG',
+      '/v2/sbt_capsules/3.JPG',
+      '/v2/sbt_capsules/4.JPG',
+      '/v2/sbt_capsules/5.JPG',
+    ],
+    inStock: true,
+    whatIsIt: 'Kailash Sea Buckthorn Capsules are made from 100% pure Himalayan Sea Buckthorn berries, wild-grown in the pristine high-altitude regions of the Himalayas. The berries are carefully handpicked at peak ripeness, gently processed into pulp, and then encapsulated to preserve their natural potency. Free from chemicals, dilution, and unnecessary processing, these capsules deliver Sea Buckthorn\'s full-spectrum nutrients — antioxidants, omega fatty acids, and essential vitamins — in a clean, convenient daily form, backed by complete purity, transparency, and trust.',
+    whatDoesItDo: [
+      'Natural Energy & Immunity Boost – supports sustained vitality and everyday resilience',
+      'Skin, Gut & Cellular Repair – nourishes the body from within with powerful antioxidants',
+      'Heart & Metabolic Support – helps maintain healthy circulation and internal balance',
+      'Omega-Rich Superfruit Nutrition – delivers rare omegas, vitamins, and minerals for complete wellness',
+    ],
+    ourPromise: '100% Pure. 0% Dilution. 0% Compromise. Carefully processed to retain nutrients. No colorants. No flavoring agents. Just potent Himalayan Sea Buckthorn, encapsulated exactly as nature intends.',
+    usage: [
+      'Take 1–2 capsules daily with water',
+      'Consume after breakfast or before workout',
+      'Swallow whole — do not open or chew the capsule',
+      'Use consistently for best results',
+      'Store the bottle in a cool, dry place, away from direct sunlight',
+    ],
+    whatMakesItSpecial: 'Our Sea Buckthorn is not farmed — it is wild-harvested. We journey deep into high-altitude Himalayan valleys where harsh winters, thin air, and untouched terrain shape extraordinary nutrition. Thriving naturally along cold riverbanks and rugged land, these berries develop exceptional strength and potency. Each berry is handpicked by local mountain families, gently processed using traditional methods, and carefully encapsulated — no heat abuse, no shortcuts, no compromise.\n\nRare fruit. Ancient land. Pure nutrition. Complete trust.',
+  },
+  '6': {
+    id: '6',
+    name: 'Kailash Sea Buckthorn Pulp – 500ml',
+    shortDescription: 'From wild Himalayan berries → gently pulped at source → delivered in its pure, natural form.',
+    price: 1299,
+    mrp: 1599,
+    sizes: ['500ml', '1000ml'],
+    currentSize: '500ml',
+    sizeVariants: [
+      { size: '500ml', price: 1299, mrp: 1599 },
+      { size: '1000ml', price: 2399, mrp: 2899 },
+    ],
+    rating: 4.8,
+    reviewCount: 67,
+    questionCount: 6,
+    answerCount: 10,
+    images: [
+      '/v2/sbt_pulp/1.JPG',
+      '/v2/sbt_pulp/2.JPG',
+      '/v2/sbt_pulp/3.JPG',
+      '/v2/sbt_pulp/4.JPG',
+      '/v2/sbt_pulp/5.JPG',
+    ],
+    inStock: true,
+    whatIsIt: 'Kailash Sea Buckthorn Pulp is a 100% pure Himalayan superfruit extract made from wild-grown Sea Buckthorn berries harvested in the pristine high-altitude regions of the Himalayas. The berries are carefully handpicked at peak ripeness, gently pulped without chemicals or artificial additives, and preserved in their natural form to retain maximum nutrients. Rich in antioxidants, omega fatty acids, and vital vitamins, this pulp is delivered fresh with complete purity, transparency, and trust.',
+    whatDoesItDo: [
+      'Natural Energy & Immunity Boost – supports long-lasting vitality and daily resilience',
+      'Skin, Gut & Cellular Repair – nourishes from within with powerful antioxidants',
+      'Heart & Metabolic Support – helps maintain healthy circulation and balance',
+      'Omega-Rich Superfruit Nutrition – delivers rare omegas, vitamins, and minerals for complete wellness',
+    ],
+    ourPromise: '100% Pure. 0% Dilution. 0% Compromise. Cold-processed to preserve nutrients. No colorants. No flavoring agents. Just potent Himalayan Sea Buckthorn pulp, exactly as nature creates it.',
+    usage: [
+      'Take 1–2 teaspoons (5–10 ml) of Sea Buckthorn pulp using a clean spoon',
+      'Consume directly or mix with lukewarm water or juice (do not boil)',
+      'Stir gently until well blended',
+      'Drink once daily — preferably after breakfast or before workout',
+      'Store bottle in a cool, dry place and refrigerate after opening',
+    ],
+    whatMakesItSpecial: 'Our Sea Buckthorn is not farmed — it is wild-harvested. We journey deep into the high-altitude Himalayan valleys where the air is thin, winters are harsh, and the land remains untouched. Growing naturally along cold riverbanks and rugged terrain, these berries survive extreme conditions, making them exceptionally potent. Each berry is handpicked by local mountain families at peak ripeness, gently pulped using traditional methods, and preserved in its raw form — no heat, no shortcuts, no compromise.\n\nRare fruit. Harsh land. Pure nutrition. Complete trust.',
+  }
 }
 
 // Function to get product data based on ID
@@ -301,6 +326,25 @@ export default function ProductDetailsPage() {
     }
   }
 
+  // Get current variant based on selected size (for dynamic pricing)
+  const getCurrentVariant = (): SizeVariant | null => {
+    if (!productData) return null
+
+    // If sizeVariants exists and has data, find the matching variant
+    if (productData.sizeVariants && productData.sizeVariants.length > 0) {
+      const variant = productData.sizeVariants.find(v => v.size === selectedSize)
+      if (variant) return variant
+    }
+
+    // Fallback to product's default price/mrp
+    return { size: selectedSize, price: productData.price, mrp: productData.mrp }
+  }
+
+  // Get current price and mrp based on selected size variant
+  const currentVariant = getCurrentVariant()
+  const currentPrice = currentVariant?.price ?? productData?.price ?? 0
+  const currentMrp = currentVariant?.mrp ?? productData?.mrp ?? 0
+
   const handleAddToBag = () => {
     if (!productData) return
 
@@ -308,8 +352,8 @@ export default function ProductDetailsPage() {
       id: '', // Will be generated in context
       productId: productData.id,
       name: productData.name,
-      price: productData.price,
-      mrp: productData.mrp,
+      price: currentPrice,
+      mrp: currentMrp,
       image: productData.images[0],
       size: selectedSize
     }, quantity)
@@ -323,8 +367,8 @@ export default function ProductDetailsPage() {
       id: '', // Will be generated in context
       productId: productData.id,
       name: productData.name,
-      price: productData.price,
-      mrp: productData.mrp,
+      price: currentPrice,
+      mrp: currentMrp,
       image: productData.images[0],
       size: selectedSize
     }, quantity, false)
@@ -577,19 +621,19 @@ export default function ProductDetailsPage() {
             {/* Price */}
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-1">
-                <span className="text-3xl font-bold text-[#373436]">₹{(productData.price * quantity).toLocaleString()}</span>
-                {productData.mrp > productData.price && (
+                <span className="text-3xl font-bold text-[#373436]">₹{(currentPrice * quantity).toLocaleString()}</span>
+                {currentMrp > currentPrice && (
                   <>
-                    <span className="text-lg text-gray-400 line-through">₹{(productData.mrp * quantity).toLocaleString()}</span>
+                    <span className="text-lg text-gray-400 line-through">₹{(currentMrp * quantity).toLocaleString()}</span>
                     <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
-                      {Math.round(((productData.mrp - productData.price) / productData.mrp) * 100)}% OFF
+                      {Math.round(((currentMrp - currentPrice) / currentMrp) * 100)}% OFF
                     </span>
                   </>
                 )}
               </div>
               {quantity > 1 && (
                 <p className="text-sm text-[#373436]/60 mb-1">
-                  ₹{productData.price.toLocaleString()} × {quantity} items
+                  ₹{currentPrice.toLocaleString()} × {quantity} items
                 </p>
               )}
               <p className="text-xs text-[#373436] uppercase tracking-wide">
@@ -977,7 +1021,7 @@ export default function ProductDetailsPage() {
               <div className="relative">
                 <div
                   className="relative aspect-[9/16] max-h-[600px] bg-gray-900 rounded-lg overflow-hidden cursor-pointer group"
-                  onClick={() => setModalVideoUrl('/v2/ShilajitDocumentry.mp4')}
+                  onClick={() => setModalVideoUrl('https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto/v1768840347/ShilajitDocumentry_fc3z58.mp4')}
                 >
                   <video
                     ref={previewVideoRef}
@@ -988,7 +1032,7 @@ export default function ProductDetailsPage() {
                     playsInline
                     preload="metadata"
                   >
-                    <source src="/v2/ShilajitDocumentry.mp4" type="video/mp4" />
+                    <source src="https://res.cloudinary.com/dncyd9qf3/video/upload/q_auto,f_auto/v1768840347/ShilajitDocumentry_fc3z58.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
 
