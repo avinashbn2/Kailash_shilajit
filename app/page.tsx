@@ -165,40 +165,35 @@ const customerVideos: CustomerVideoCardProps[] = [
     videoSource: '/v2/reviews/Abhishek_Shetty.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Abhishek Shetty',
-    description: 'Kailash Shilajit review',
-    price: 2250
+    description: 'Kailash Shilajit review'
   },
   {
     id: '2',
     videoSource: '/v2/reviews/Arjun.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Arjun',
-    description: 'Kailash Shilajit review',
-    price: 2250
+    description: 'Kailash Shilajit review'
   },
   {
     id: '3',
     videoSource: '/v2/reviews/Jeevanan%20K.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Jeevanan K',
-    description: 'Kailash Shilajit review',
-    price: 2250
+    description: 'Kailash Shilajit review'
   },
   {
     id: '4',
     videoSource: '/v2/reviews/SachinSuvarna.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Sachin Suvarna',
-    description: 'Kailash Shilajit review',
-    price: 2250
+    description: 'Kailash Shilajit review'
   },
   {
     id: '5',
     videoSource: '/v2/reviews/Vishwambar.mp4',
     productImage: '/v2/IMG_0921.JPG',
     title: 'Vishwambar',
-    description: 'Kailash Shilajit review',
-    price: 2250
+    description: 'Kailash Shilajit review'
   }
 ]
 

@@ -6,8 +6,10 @@ export default function OurStorySection() {
     <section className="w-full py-16 bg-[#FFFCF9] ">
      
            {/* Our Story Section */}
-            <section className="w-full py-20 bg-[#FFFCF9] bg-center md:bg-top bg-cover bg-blend-multiply " style={{backgroundImage: "url('/v2/our_story.png')"}}>
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 ">
+            <section className="w-full py-20 bg-center md:bg-top bg-cover relative" style={{backgroundImage: "url('/v2/our_story.png')"}}>
+              {/* Dark overlay for text legibility */}
+              <div className="absolute inset-0 bg-black/60"></div>
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-12">
                   <span className="text-[#8A9C66] font-medium tracking-wider uppercase text-sm">Discover</span>
                   <h2 className="text-3xl md:text-5xl font-bold text-[#fff] mt-2">Our Story</h2>

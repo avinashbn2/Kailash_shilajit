@@ -1,7 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import Image from 'next/image'
+import { useRef, useState, useEffect } from 'react'
 import { Heart, Send, X, Volume2, VolumeX } from 'lucide-react'
 
 export interface CustomerVideoCardProps {
@@ -11,31 +10,27 @@ export interface CustomerVideoCardProps {
   productImage: string
   title: string
   description: string
-  price: number
 }
 
 export default function CustomerVideoCard({
   videoSource,
   thumbnailImage,
-  productImage,
-  title,
-  description,
-  price
 }: CustomerVideoCardProps) {
   const [isLiked, setIsLiked] = useState(false)
-  const [isAdding, setIsAdding] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalMuted, setIsModalMuted] = useState(false)
+  const [isMobile, setIsMobile] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const modalVideoRef = useRef<HTMLVideoElement>(null)
 
-  const handleAddToBag = () => {
-    setIsAdding(true)
-    console.log(`Adding ${title} to bag`)
-    setTimeout(() => {
-      setIsAdding(false)
-    }, 1000)
-  }
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  const modalVideoRef = useRef<HTMLVideoElement>(null)
 
   const handleMouseEnter = () => {
     if (videoRef.current && !isModalOpen) {
@@ -79,7 +74,7 @@ export default function CustomerVideoCard({
           <video
             ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover"
-            autoPlay
+            autoPlay={!isMobile}
             loop
             muted
             playsInline
@@ -111,41 +106,6 @@ export default function CustomerVideoCard({
             <Send className="h-6 w-6 text-white" />
           </button>
         </div>
-      </div>
-
-      {/* Product Card */}
-      <div className="bg-[#FFFCF9] rounded-2xl shadow-md mt-4 p-4">
-        <div className="flex items-start gap-3 mb-3">
-          <div className="relative w-12 h-12 flex-shrink-0">
-            <Image
-              src={productImage}
-              alt={title}
-              fill
-              className="rounded-lg object-cover"
-              sizes="48px"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-base line-clamp-1 mb-1">
-              {title}
-            </h3>
-            <p className="text-sm text-gray-600 line-clamp-2">
-              {description}
-            </p>
-          </div>
-        </div>
-        
-        <div className="text-xl font-bold mb-3">
-          INR {price.toLocaleString()}
-        </div>
-        
-        <button
-          onClick={handleAddToBag}
-          disabled={isAdding}
-          className="w-full bg-[#8A9C66] text-white py-3 rounded-full hover:bg-[#7a8a5a] transition-colors disabled:bg-gray-400 font-medium"
-        >
-          {isAdding ? 'Adding...' : 'Add to Bag'}
-        </button>
       </div>
     </div>
 
