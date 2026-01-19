@@ -1,0 +1,50 @@
+import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+
+export async function GET() {
+  try {
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('in_stock', true)
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching products:', error)
+      return NextResponse.json(
+        { error: 'Failed to fetch products' },
+        { status: 500 }
+      )
+    }
+
+    // Transform snake_case to camelCase for consistency with existing code
+    const transformedProducts = products?.map(product => ({
+      id: product.id,
+      name: product.name,
+      shortDescription: product.short_description,
+      price: product.price,
+      mrp: product.mrp,
+      images: product.images,
+      sizes: product.sizes,
+      currentSize: product.current_size,
+      rating: product.rating,
+      reviewCount: product.review_count,
+      questionCount: product.question_count,
+      answerCount: product.answer_count,
+      inStock: product.in_stock,
+      whatIsIt: product.what_is_it,
+      whatDoesItDo: product.what_does_it_do,
+      ourPromise: product.our_promise,
+      usage: product.usage,
+      whatMakesItSpecial: product.what_makes_it_special,
+    }))
+
+    return NextResponse.json(transformedProducts)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

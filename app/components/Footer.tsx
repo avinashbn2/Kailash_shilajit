@@ -1,6 +1,6 @@
-import Link from 'next/link'
+import { Facebook, Instagram, Mail, MapPin, Phone, Twitter } from 'lucide-react'
 import Image from 'next/image'
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react'
+import Link from 'next/link'
 
 export default function Footer() {
   return (
@@ -67,7 +67,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/products" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
+                <Link href="#products" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
                   Products
                 </Link>
               </li>
@@ -79,37 +79,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Customer Service</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/shipping" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
-                  Returns & Exchanges
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-sm text-[#FFFCF9]/80 hover:text-[#8A9C66] transition-colors">
-                  Terms & Conditions
-                </Link>
-              </li>
-            </ul>
-          </div>
 
           {/* Contact Info */}
           <div>
@@ -117,18 +86,20 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start space-x-2 text-sm text-[#FFFCF9]/80">
                 <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <span>Himalayan Region, India</span>
+                <span>Kailash 
+3041/1D 3rd floor Akshaya building 
+ Gayatri Bhavan Road, Banashankari Stage 2 Bangalore - 560070</span>
               </li>
               <li className="flex items-center space-x-2 text-sm text-[#FFFCF9]/80">
                 <Phone className="h-5 w-5 flex-shrink-0" />
-                <a href="tel:+911234567890" className="hover:text-[#8A9C66] transition-colors">
-                  +91 123 456 7890
+                <a href="tel:+919380986772" className="hover:text-[#8A9C66] transition-colors">
+                  +91 9380986772
                 </a>
               </li>
               <li className="flex items-center space-x-2 text-sm text-[#FFFCF9]/80">
                 <Mail className="h-5 w-5 flex-shrink-0" />
-                <a href="mailto:info@kailash.com" className="hover:text-[#8A9C66] transition-colors">
-                  info@kailash.com
+                <a href="mailto:support@kailash.asia" className="hover:text-[#8A9C66] transition-colors">
+                  support@kailash.asia
                 </a>
               </li>
             </ul>

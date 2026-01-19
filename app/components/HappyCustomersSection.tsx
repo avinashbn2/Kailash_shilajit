@@ -1,8 +1,8 @@
 'use client'
 
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef } from 'react'
 import CustomerVideoCard, { CustomerVideoCardProps } from './CustomerVideoCard'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface HappyCustomersSectionProps {
   videos: CustomerVideoCardProps[]
@@ -29,7 +29,7 @@ export default function HappyCustomersSection({ videos }: HappyCustomersSectionP
   return (
     <div className="w-full py-16 bg-[#F5F2ED]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center mb-12 text-[#373436]">Happy Customers</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-[#373436]">Real Stories, Real Results</h2>
         
         <div className="relative">
           {/* Navigation Buttons - Hidden on mobile */}

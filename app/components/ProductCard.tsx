@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useCart } from '@/contexts/CartContext'
 
 export interface ProductCardProps {
   id: string
@@ -29,14 +31,47 @@ export default function ProductCard({
   savings
 }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false)
+  const { addToCart } = useCart()
+  const router = useRouter()
 
-  const handleAddToBag = (e: React.FormEvent) => {
+  const handleAddToBag = (e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsAdding(true)
-    console.log(`Adding ${title} to bag`)
+
+    // Add to cart with product data
+    addToCart({
+      id: '', // Will be generated in context
+      productId: id,
+      name: title,
+      price: price,
+      mrp: originalPrice || price,
+      image: image,
+      size: 'Default'
+    }, 1)
+
     setTimeout(() => {
       setIsAdding(false)
     }, 1000)
+  }
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Add to cart with product data (don't open cart drawer)
+    addToCart({
+      id: '', // Will be generated in context
+      productId: id,
+      name: title,
+      price: price,
+      mrp: originalPrice || price,
+      image: image,
+      size: 'Default'
+    }, 1, false)
+
+    // Redirect to checkout
+    router.push('/checkout')
   }
 
   const renderStars = () => {
@@ -75,7 +110,7 @@ export default function ProductCard({
                   src={image}
                   alt={title}
                   fill
-                  className="product-image-photo object-cover"
+                  className="product-image-photo object-contain"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                 />
               </span>
@@ -138,21 +173,25 @@ export default function ProductCard({
 
         {/* Actions */}
         <div className="product-item-inner p-4 pt-0">
-          <div className="product-item-actions">
-            {/* Primary Actions */}
-            <div className="actions-primary mb-3">
-              <form onSubmit={handleAddToBag}>
-                <button
-                  type="submit"
-                  disabled={isAdding}
-                  className="action tocart primary w-full bg-[#8A9C66] text-white py-3 px-6 rounded-full hover:bg-[#7a8a5a] transition-colors disabled:bg-gray-400 font-semibold"
-                  title="Add to Bag"
-                >
-                  <span>{isAdding ? 'Adding...' : 'Add to Bag'}</span>
-                </button>
-              </form>
-            </div>
+          <div className="product-item-actions flex flex-col gap-2">
+            {/* Add to Bag Button */}
+            <button
+              onClick={handleAddToBag}
+              disabled={isAdding}
+              className="w-full bg-white border-2 border-[#8A9C66] text-[#8A9C66] py-3 px-6 rounded-full hover:bg-[#8A9C66] hover:text-white transition-colors disabled:bg-gray-200 disabled:border-gray-300 disabled:text-gray-400 font-semibold"
+              title="Add to Bag"
+            >
+              <span>{isAdding ? 'Adding...' : 'Add to Bag'}</span>
+            </button>
 
+            {/* Buy Now Button */}
+            <button
+              onClick={handleBuyNow}
+              className="w-full bg-[#8A9C66] text-white py-3 px-6 rounded-full hover:bg-[#7a8a5a] transition-colors font-semibold"
+              title="Buy Now"
+            >
+              <span>Buy Now</span>
+            </button>
           </div>
         </div>
       </div>

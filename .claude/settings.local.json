@@ -5,7 +5,22 @@
       "Bash(mkdir:*)",
       "Bash(npm run lint)",
       "Read(//var/folders/29/ms63j4z135g2y1hxrx4r_dv00000gn/T/TemporaryItems/NSIRD_screencaptureui_l6XEpq/**)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(npm run db:setup:*)",
+      "Bash(npm run db:auto-setup:*)",
+      "Bash(open \"https://supabase.com/dashboard/project/eygrzvfnxbjdqpfypojb/sql/new\")",
+      "Bash(read:*)",
+      "Bash(pbcopy)",
+      "Bash(node scripts/auto-setup.mjs:*)",
+      "Bash(node scripts/apply-migration-003.mjs:*)",
+      "Bash(grep:*)",
+      "Bash(node scripts/check-payment-column.mjs:*)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

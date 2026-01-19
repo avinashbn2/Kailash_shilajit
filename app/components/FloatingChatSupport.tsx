@@ -1,7 +1,8 @@
 'use client'
 
 import { MessageCircle, Send, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { validateEmail } from '@/lib/validation'
 
 interface Message {
   id: string
@@ -11,28 +12,24 @@ interface Message {
 }
 
 export default function FloatingChatSupport() {
+  const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Hello! How can we help you today?',
-      sender: 'support',
-      timestamp: new Date()
-    }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [email, setEmail] = useState('')
   const [query, setQuery] = useState('')
   const [step, setStep] = useState<'initial' | 'form' | 'submitted'>('initial')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    const video = videoRef.current
-    if (video) {
-      video.play().catch(error => {
-        console.log('Auto-play was prevented:', error)
-      })
-    }
+    setMounted(true)
+    setMessages([
+      {
+        id: '1',
+        text: 'Hello! How can we help you today?',
+        sender: 'support',
+        timestamp: new Date()
+      }
+    ])
   }, [])
 
   const handleToggleChat = () => {
@@ -41,7 +38,22 @@ export default function FloatingChatSupport() {
 
   const handleSubmitQuery = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !query) return
+
+    // Enhanced validation
+    if (!email.trim()) {
+      alert('Email is required');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    if (!query.trim()) {
+      alert('Query is required');
+      return;
+    }
 
     setIsSubmitting(true)
 
@@ -66,7 +78,7 @@ export default function FloatingChatSupport() {
       }
 
       setMessages(prev => [...prev, autoResponse])
-      
+
       // Add follow-up message
       setTimeout(() => {
         const followUpMessage: Message = {
@@ -93,6 +105,10 @@ export default function FloatingChatSupport() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
+  if (!mounted) {
+    return null
+  }
+
   return (
     <>
       {/* Chat Toggle Button - Circular Video */}
@@ -105,27 +121,9 @@ export default function FloatingChatSupport() {
           onClick={handleToggleChat}
           className="relative group cursor-pointer"
         >
-          <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-[#8A9C66] shadow-lg hover:scale-110 transition-transform duration-300 bg-[#8A9C66]">
-            {/* Video element */}
-            <video
-              ref={videoRef}
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-            >
-              <source src="https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov" type="video/mp4" />
-              <source src="https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov" type="video/quicktime" />
-            </video>
-
-            {/* Overlay with subtle gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-
-            {/* Message icon overlay - always visible with slight transparency */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all duration-300">
-              <MessageCircle className="w-8 h-8 text-white" />
-            </div>
+          <div className="relative w-20 h-20 rounded-full border-4 border-[#8A9C66] shadow-lg hover:scale-110 transition-transform duration-300 bg-[#8A9C66] flex items-center justify-center">
+            {/* Message icon */}
+            <MessageCircle className="w-8 h-8 text-white" />
           </div>
         </div>
       </div>
@@ -220,7 +218,7 @@ export default function FloatingChatSupport() {
                 </div>
                 <button
                   type="submit"
-                  disabled={isSubmitting || !email || !query}
+                  disabled={isSubmitting || !email.trim() || !validateEmail(email) || !query.trim()}
                   className="w-full bg-[#8A9C66] hover:bg-[#7a8a5a] disabled:bg-gray-400 text-white py-2 px-4 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />

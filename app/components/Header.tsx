@@ -1,15 +1,16 @@
 'use client'
 
-import { Menu, Search, ShoppingCart, User, X } from 'lucide-react'
+import { Menu, Search, ShoppingCart, User, X, Trash2, Plus, Minus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useCart } from '@/contexts/CartContext'
 
 export default function Header() {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [isCartOpen, setIsCartOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart()
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,7 +97,7 @@ export default function Header() {
               >
                 <ShoppingCart className="h-6 w-6 text-[#FFFCF9]" />
                 <span className="absolute -top-1 -right-1 h-6 w-6 bg-[#8A9C66] text-white text-sm rounded-full flex items-center justify-center">
-                  0
+                  {cart.totalItems}
                 </span>
               </button>
             </div>
@@ -135,7 +136,7 @@ export default function Header() {
               >
                 <ShoppingCart className="h-6 w-6 text-[#FFFCF9]" />
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#8A9C66] text-white text-xs rounded-full flex items-center justify-center">
-                  0
+                  {cart.totalItems}
                 </span>
               </button>
             </div>
@@ -172,7 +173,7 @@ export default function Header() {
 
       {isCartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsCartOpen(false)} />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
           <div className="absolute right-0 top-0 h-full w-full max-w-md bg-[#FFFCF9] shadow-xl">
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between p-4 border-b">
@@ -185,16 +186,67 @@ export default function Header() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
-                <p className="text-gray-500 text-center py-8">Your cart is empty</p>
+                {cart.items.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">Your cart is empty</p>
+                ) : (
+                  <div className="space-y-4">
+                    {cart.items.map(item => (
+                      <div key={item.id} className="flex gap-4 pb-4 border-b border-gray-200">
+                        <div className="relative w-20 h-20 flex-shrink-0 bg-white rounded-lg overflow-hidden">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-[#373436] truncate">{item.name}</h3>
+                          <p className="text-xs text-gray-600 mt-1">Size: {item.size}</p>
+                          <p className="text-sm font-bold text-[#373436] mt-1">
+                            ₹{(item.price * item.quantity).toLocaleString()}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="p-1 hover:bg-gray-100 rounded"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="text-sm font-medium">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="p-1 hover:bg-gray-100 rounded"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="ml-auto p-1 hover:bg-red-50 rounded text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="border-t p-4">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-semibold">Total:</span>
-                  <span className="text-xl font-bold">$0.00</span>
+                  <span className="text-xl font-bold">₹{cart.total.toLocaleString()}</span>
                 </div>
-                <button className="w-full bg-[#8A9C66] text-white py-3 rounded-lg hover:bg-[#7a8a5a] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+                <Link
+                  href="/checkout"
+                  onClick={() => setIsCartOpen(false)}
+                  className={`block w-full bg-[#8A9C66] text-white py-3 rounded-lg hover:bg-[#7a8a5a] transition-colors text-center ${
+                    cart.items.length === 0 ? 'opacity-50 pointer-events-none' : ''
+                  }`}
+                >
                   Checkout
-                </button>
+                </Link>
               </div>
             </div>
           </div>

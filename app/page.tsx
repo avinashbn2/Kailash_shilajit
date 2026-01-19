@@ -1,59 +1,12 @@
 "use client"
+import { Product } from '@/types'
+import { Volume2, VolumeX, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CustomerVideoCardProps } from './components/CustomerVideoCard'
 import HappyCustomersSection from './components/HappyCustomersSection'
-import { ProductCardProps } from './components/ProductCard'
-import { X, Volume2, VolumeX } from 'lucide-react'
-
-const sampleProducts: ProductCardProps[] = [
-  {
-    id: '1',
-    image: '/v2/shilajit/1.JPG',
-    title: 'Kailash Shilajit',
-    description: 'Ayurvedic wellness sticks for daily health and vitality',
-    price: 4500,
-    originalPrice: 5000,
-    rating: 5,
-    reviewCount: 55,
-    savings: '10% SAVINGS'
-  },
-  {
-    id: '2',
-    image: '/v2/ladoos/1.JPG',    
-    title: 'Kailash Shilajit Ladoos',
-    description: 'A mineral-rich energy ladoo crafted from 100% pure Himalayan Shilajit resin',
-    price: 2999,
-    originalPrice: 3499,
-    rating: 4.8,
-    reviewCount: 256,
-    savings: '14% SAVINGS'
-  },
-  {
-    id: '3',
-    image: '/v2/pct/1.JPG',
-    
-    title: 'Kailash Shilajit PCT Capsules',
-    description: 'Advanced post-cycle therapy support for optimal recovery',
-    price: 1999,
-    originalPrice: 2499,
-    rating: 4.5,
-    reviewCount: 89,
-    savings: '20% SAVINGS'
-  },
-  {
-    id: '4',
-    image: '/v2/amrit_shot.png',
-    title: 'Kailash Amrit Shots – Pack of 30',
-    description: 'Kailash Amrit Shots is a 30-day wellness ritual powered by pure Himalayan forest honey and authentic Shilajit resin.',
-    price: 3500,
-    originalPrice: 4000,
-    rating: 4.6,
-    reviewCount: 178,
-    savings: '12% SAVINGS'
-  },
-]
+import OurStorySection from './components/OurStorySection'
 
 // const contentSlides: SlideContent[] = [
 //   {
@@ -112,87 +65,177 @@ const sampleProducts: ProductCardProps[] = [
 //   }
 // ]
 
+// Fallback products when API is unavailable
+const fallbackProducts: Product[] = [
+  {
+    id: '1',
+    name: 'Kailash Shilajit Sun-Dried Resin 25g',
+    shortDescription: 'From untouched Himalayan rocks → purified only by the Sun → delivered with absolute honesty.',
+    price: 4500,
+    mrp: 5000,
+    images: ['/v2/shilajit/1.JPG', '/v2/shilajit/2.JPG', '/v2/shilajit/3.JPG', '/v2/shilajit/4.JPG'],
+    sizes: ['12g', '25g'],
+    currentSize: '25g',
+    rating: 5.0,
+    reviewCount: 55,
+    questionCount: 13,
+    answerCount: 20,
+    inStock: true,
+  },
+  {
+    id: '2',
+    name: 'Kailash Shilajit Ladoos pack of 30',
+    shortDescription: 'A mineral-rich energy ladoo crafted from 100% pure Himalayan Shilajit resin, naturally sweetened with raw Himalayan forest honey and premium dry fruits.',
+    price: 2999,
+    mrp: 3499,
+    images: ['/v2/ladoos/1.JPG', '/v2/ladoos/2.JPG', '/v2/ladoos/3.JPG', '/v2/ladoos/4.JPG', '/v2/ladoos/5.JPG', '/v2/ladoos/6.JPG'],
+    sizes: ['30 count', '60 count'],
+    currentSize: '30 count',
+    rating: 4.8,
+    reviewCount: 256,
+    questionCount: 8,
+    answerCount: 15,
+    inStock: true,
+  },
+  {
+    id: '3',
+    name: 'Kailash Shilajit PCT Capsules - Pack of 30',
+    shortDescription: 'A 30-day Ayurvedic recovery formula powered by pure mineral-rich Himalayan Shilajit and 11 restorative herbs.',
+    price: 1999,
+    mrp: 2499,
+    images: ['/v2/pct/1.JPG', '/v2/pct/2.JPG', '/v2/pct/3.JPG', '/v2/pct/4.JPG'],
+    sizes: ['30 count', '60 count'],
+    currentSize: '30 count',
+    rating: 4.5,
+    reviewCount: 89,
+    questionCount: 8,
+    answerCount: 15,
+    inStock: true,
+  },
+  {
+    id: '4',
+    name: 'Kailash Amrit Shots – Pack of 30',
+    shortDescription: 'A 30-day wellness ritual powered by pure Himalayan forest honey and authentic Shilajit resin. Natural energy, stamina, and mineral richness.',
+    price: 3500,
+    mrp: 4000,
+    images: ['/v2/amrit_shot.png'],
+    sizes: ['30 count', '60 count'],
+    currentSize: '30 count',
+    rating: 4.6,
+    reviewCount: 178,
+    questionCount: 8,
+    answerCount: 15,
+    inStock: true,
+  },
+  {
+    id: '5',
+    name: 'Kailash Sea Buckthorn Capsules – 30 Capsules',
+    shortDescription: 'From wild Himalayan berries → gently processed & encapsulated → delivered with complete purity.',
+    price: 1499,
+    mrp: 1799,
+    images: ['/v2/sbt_capsules/1.JPG', '/v2/sbt_capsules/2.JPG', '/v2/sbt_capsules/3.JPG', '/v2/sbt_capsules/4.JPG', '/v2/sbt_capsules/5.JPG'],
+    sizes: ['30 capsules', '60 capsules'],
+    currentSize: '30 capsules',
+    rating: 4.7,
+    reviewCount: 42,
+    questionCount: 5,
+    answerCount: 8,
+    inStock: true,
+  },
+  {
+    id: '6',
+    name: 'Kailash Sea Buckthorn Pulp – 500ml',
+    shortDescription: 'From wild Himalayan berries → gently pulped at source → delivered in its pure, natural form.',
+    price: 1299,
+    mrp: 1599,
+    images: ['/v2/sbt_pulp/1.JPG', '/v2/sbt_pulp/2.JPG', '/v2/sbt_pulp/3.JPG', '/v2/sbt_pulp/4.JPG', '/v2/sbt_pulp/5.JPG'],
+    sizes: ['500ml', '1000ml'],
+    currentSize: '500ml',
+    rating: 4.8,
+    reviewCount: 67,
+    questionCount: 6,
+    answerCount: 10,
+    inStock: true,
+  }
+]
+
 const customerVideos: CustomerVideoCardProps[] = [
   {
     id: '1',
-    videoSource: 'https://ik.imagekit.io/gqrc4jrxj/kailash/Sequence%2005.mp4',
-    thumbnailImage: '/api/placeholder/320/568',
-    productImage: '/api/placeholder/100/100',
-    title: 'Arjun Wrestler',
+    videoSource: '/v2/reviews/Abhishek_Shetty.mp4',
+    productImage: '/v2/IMG_0921.JPG',
+    title: 'Abhishek Shetty',
     description: 'Kailash Shilajit review',
     price: 2250
   },
   {
     id: '2',
-    videoSource: 'https://ik.imagekit.io/gqrc4jrxj/kailash/Sachin%20Suvarna.mp4',
-    thumbnailImage: '/api/placeholder/320/568',
-    productImage: '/api/placeholder/100/100',
-    title: 'Sachin Kabaddi',
+    videoSource: '/v2/reviews/Arjun.mp4',
+    productImage: '/v2/IMG_0921.JPG',
+    title: 'Arjun',
     description: 'Kailash Shilajit review',
-    price: 1850
+    price: 2250
   },
-  // {
-  //   id: '3',
-  //   videoSource: '/videos/customer-3.mp4',
-  //   thumbnailImage: '/api/placeholder/320/568',
-  //   productImage: '/api/placeholder/100/100',
-  //   title: 'Hydrating Face Mist',
-  //   description: 'Refreshing rose water mist with hyaluronic acid for instant hydration',
-  //   price: 999
-  // },
-  // {
-  //   id: '4',
-  //   videoSource: '/videos/customer-4.mp4',
-  //   thumbnailImage: '/api/placeholder/320/568',
-  //   productImage: '/api/placeholder/100/100',
-  //   title: 'Anti-Aging Night Cream',
-  //   description: 'Rich night cream with retinol and peptides for younger-looking skin',
-  //   price: 3499
-  // },
-  // {
-  //   id: '5',
-  //   videoSource: '/videos/customer-5.mp4',
-  //   thumbnailImage: '/api/placeholder/320/568',
-  //   productImage: '/api/placeholder/100/100',
-  //   title: 'Exfoliating Body Scrub',
-  //   description: 'Gentle coffee scrub that removes dead skin cells and improves circulation',
-  //   price: 1599
-  // },
-  // {
-  //   id: '6',
-  //   videoSource: '/videos/customer-6.mp4',
-  //   thumbnailImage: '/api/placeholder/320/568',
-  //   productImage: '/api/placeholder/100/100',
-  //   title: 'Hair Growth Serum',
-  //   description: 'Ayurvedic formula with bhringraj and amla for stronger, healthier hair',
-  //   price: 2799
-  // },
-  // {
-  //   id: '7',
-  //   videoSource: '/videos/customer-7.mp4',
-  //   thumbnailImage: '/api/placeholder/320/568',
-  //   productImage: '/api/placeholder/100/100',
-  //   title: 'Lip Care Duo',
-  //   description: 'Day and night lip treatment for soft, plump lips',
-  //   price: 799
-  // },
-  // {
-  //   id: '8',
-  //   videoSource: '/videos/customer-8.mp4',
-  //   thumbnailImage: '/api/placeholder/320/568',
-  //   productImage: '/api/placeholder/100/100',
-  //   title: 'Acne Control Gel',
-  //   description: 'Tea tree and salicylic acid gel for clear, blemish-free skin',
-  //   price: 1299
-  // }
+  {
+    id: '3',
+    videoSource: '/v2/reviews/Jeevanan%20K.mp4',
+    productImage: '/v2/IMG_0921.JPG',
+    title: 'Jeevanan K',
+    description: 'Kailash Shilajit review',
+    price: 2250
+  },
+  {
+    id: '4',
+    videoSource: '/v2/reviews/SachinSuvarna.mp4',
+    productImage: '/v2/IMG_0921.JPG',
+    title: 'Sachin Suvarna',
+    description: 'Kailash Shilajit review',
+    price: 2250
+  },
+  {
+    id: '5',
+    videoSource: '/v2/reviews/Vishwambar.mp4',
+    productImage: '/v2/IMG_0921.JPG',
+    title: 'Vishwambar',
+    description: 'Kailash Shilajit review',
+    price: 2250
+  }
 ]
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [modalVideoUrl, setModalVideoUrl] = useState<string | null>(null)
   const [isVideoMuted, setIsVideoMuted] = useState(false)
   const previewVideoRef = useRef<HTMLVideoElement>(null)
   const modalVideoRef = useRef<HTMLVideoElement>(null)
   const featuredProductsRef = useRef<HTMLDivElement>(null)
+
+  // Fetch products from API with fallback
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products')
+        if (response.ok) {
+          const data = await response.json()
+          if (Array.isArray(data) && data.length > 0) {
+            setProducts(data)
+          } else {
+            setProducts(fallbackProducts)
+          }
+        } else {
+          setProducts(fallbackProducts)
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error)
+        setProducts(fallbackProducts)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
 
   const scrollToFeaturedProducts = () => {
     if (featuredProductsRef.current) {
@@ -277,7 +320,7 @@ export default function Home() {
                 {/* Product 1 - Left */}
                 <div className="w-32 sm:w-48 md:w-56 lg:w-64 h-48 sm:h-64 relative rounded-3xl shadow-2xl transform translate-y-8 overflow-hidden">
                   <Image
-                    src="/v2/IMG_0922.JPG"
+                    src="/v2/ladoo2.JPG"
                     alt="Product 1"
                     fill
                     className="object-contain"
@@ -288,7 +331,7 @@ export default function Home() {
                 {/* Product 2 - Center (Larger) */}
                 <div className="w-40 sm:w-56 md:w-64 lg:w-72 h-56 sm:h-72 relative rounded-3xl shadow-2xl z-10 overflow-hidden">
                   <Image
-                    src="/v2/IMG_0921.JPG"
+                    src="/v2/shilajit.JPG"
                     alt="Product 2"
                     fill
                     className="object-contain"
@@ -314,7 +357,7 @@ export default function Home() {
       </section>
       <section>
       <h2 className="text-3xl mt-16 md:text-5xl lg:text-5xl font-bold text-center mb-12 text-[#373436]">
-            Our Journey
+            The Kailash Journey: Mountain to You
           </h2>
 
       <div className="max-w-7xl mx-auto px-4 pb-16">
@@ -326,7 +369,7 @@ export default function Home() {
 <div className="relative order-1 lg:order-1">
   <div
     className="relative aspect-[9/16] max-h-[700px] bg-gray-900 rounded-lg overflow-hidden cursor-pointer group mx-auto max-w-md lg:max-w-none"
-    onClick={() => handleOpenModal('https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov')}
+    onClick={() => handleOpenModal('/v2/ShilajitDocumentry.mp4')}
   >
     <video
       ref={previewVideoRef}
@@ -337,11 +380,10 @@ export default function Home() {
       playsInline
       preload="metadata"
     >
-      <source src="https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov" type="video/mp4" />
+      <source src="/v2/ShilajitDocumentry.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
-    {/* Play Icon Overlay */}
     <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
       <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center">
         <div className="w-0 h-0 border-l-[20px] border-l-[#8A9C66] border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent ml-2" />
@@ -352,55 +394,54 @@ export default function Home() {
 
 {/* Text Content - Mobile: Below, Desktop: Right */}
 
-<div className="space-y- order-2 lg:order-2">
+<div className="space-y-6 order-2 lg:order-2">
 
   <div className="text-[#373436] text-base md:text-lg leading-relaxed space-y-6">
-  <h2 className="font-bold text-xl md:text-2xl mb-4">The Kailash Promise: From Cliff to Capsule</h2>
-  
-  <ul className="space-y-4">
-    <li className="flex ">
-      <span className="text-xl">🏔️</span>
+
+  <ul className="space-y-5">
+    <li className="flex gap-3">
+      <span className="text-2xl">🏔️</span>
       <span>
-        <strong className="block text-xl">The Hardest Reach</strong>
-        Sourced via a 1.5-day trek through razor-edged cliffs and glacial trails where maps and roads fail.
+        <strong className="block text-xl">Beyond Human Reach</strong>
+        Harvested through a relentless 1.5-day journey across knife-sharp cliffs and frozen Himalayan paths—where roads disappear and only faith, strength, and nature guide the way.
       </span>
     </li>
 
     <li className="flex gap-3">
-      <span className="text-xl">☀️</span>
+      <span className="text-2xl">☀️</span>
       <span>
-        <strong className="block text-xl">Sun-Purified & Raw</strong>
-        Never heated or chemically altered. Purified naturally under Himalayan sunlight and cold winds to preserve trace minerals.
+        <strong className="block text-xl">Pure as the Sun Allows</strong>
+        Never boiled, burned, or chemically touched. Naturally purified under Himalayan sunlight and icy winds, so every living mineral remains exactly as nature intended.
       </span>
     </li>
 
     <li className="flex gap-3">
-      <span className="text-xl">🤝</span>
+      <span className="text-2xl">🤝</span>
       <span>
-        <strong className="block text-xl">Hand-Extracted by Locals</strong>
-        Collected by mountain families using traditional tools and generational knowledge—valuing reverence over automation.
+        <strong className="block text-xl">Touched Only by Tradition</strong>
+        Carefully gathered by native mountain families using ancestral wisdom and hand tools—where respect for the resin matters more than speed or profit.
       </span>
     </li>
 
     <li className="flex gap-3">
-      <span className="text-xl">🚫</span>
+      <span className="text-2xl">🚫</span>
       <span>
-        <strong className="block text-xl">No Shortcuts</strong>
-        Zero machine processing or commercial modifications. We deliver the resin exactly as it exists in nature.
+        <strong className="block text-xl">No Imitation. No Compromise.</strong>
+        No machines. No shortcuts. No commercial tricks. What you receive is raw, living Shilajit—unchanged from the moment it leaves the mountain.
       </span>
     </li>
 
     <li className="flex gap-3">
-      <span className="text-xl">⚡</span>
+      <span className="text-2xl">⚡</span>
       <span>
-        <strong className="block text-xl">Holistic Vitality</strong>
-        A natural source for stamina, mental clarity, immunity, and strength, forged by the earth over centuries.
+        <strong className="block text-xl">When It&apos;s Real, It Always Works</strong>
+        Pure Shilajit is rare. But once your body experiences the real resin, the change is undeniable—energy rises, clarity sharpens, strength awakens from within.
       </span>
     </li>
   </ul>
 
-  <p className="pt-4 border-t border-gray-200 italic font-medium">
-  &quot;Our story is our proof: No machines, no heat, no compromise.&quot;
+  <p className="pt-4 border-t border-gray-200 italic font-medium text-lg">
+  &quot;True Shilajit doesn&apos;t convince. It transforms.&quot;
   </p>
 </div>
 
@@ -412,7 +453,6 @@ export default function Home() {
 
       </section>
 
-
       {/* Featured Products Section */}
       <section ref={featuredProductsRef} className="w-full py-16 bg-[#FFFCF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -421,54 +461,82 @@ export default function Home() {
           </h2>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {sampleProducts.slice(0, 4).map((product) => (
-              <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden block"
-              >
-                {/* Product Image */}
-                <div className="relative aspect-square bg-gray-50 p-6">
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 25vw"
-                  />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl shadow-md overflow-hidden animate-pulse">
+                  <div className="aspect-square bg-gray-200" />
+                  <div className="p-6 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-3 bg-gray-200 rounded w-full" />
+                    <div className="h-8 bg-gray-200 rounded w-1/2" />
+                  </div>
                 </div>
-
-                {/* Product Info */}
-                <div className="p-6">
-                  {/* Title and Rating */}
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-[#373436] flex-1">
-                      {product.title}
-                    </h3>
-                    <div className="flex items-center gap-1 ml-2">
-                      <span className="text-yellow-400">⭐</span>
-                      <span className="text-sm font-medium text-[#373436]">{product.rating}</span>
+              ))
+            ) : (
+              products.map((product) => {
+                return (
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.id}`}
+                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden block"
+                  >
+                    {/* Product Image */}
+                    <div className="relative aspect-square bg-gray-50 p-6">
+                      <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                      />
                     </div>
-                  </div>
 
-                  {/* Description */}
-                  <p className="text-sm text-[#373436]/60 mb-4 line-clamp-2">
-                    {product.description}
-                  </p>
+                    {/* Product Info */}
+                    <div className="p-6">
+                      {/* Title and Rating */}
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-lg font-semibold text-[#373436] flex-1">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center gap-1 ml-2">
+                          <span className="text-yellow-400">⭐</span>
+                          <span className="text-sm font-medium text-[#373436]">{product.rating}</span>
+                        </div>
+                      </div>
 
-                  {/* Price and Button */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-[#373436]">
-                      ₹{product.price.toLocaleString()}
-                    </span>
-                    <span className="bg-[#8A9C66] hover:bg-[#7a8a5a] text-white px-6 py-2 rounded-full font-semibold transition-colors inline-block">
-                      Buy Now
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                      {/* Description */}
+                      <p className="text-sm text-[#373436]/60 mb-4 line-clamp-2">
+                        {product.shortDescription}
+                      </p>
+
+                      {/* Price */}
+                      <div className="flex items-center gap-2 flex-wrap mb-3">
+                        <span className="text-2xl font-bold text-[#373436]">
+                          ₹{product.price.toLocaleString()}
+                        </span>
+                        {product.mrp > product.price && (
+                          <>
+                            <span className="text-sm text-gray-400 line-through">
+                              ₹{product.mrp.toLocaleString()}
+                            </span>
+                            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                              {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Button */}
+                      <span className="bg-[#8A9C66] hover:bg-[#7a8a5a] text-white px-6 py-2 rounded-full font-semibold transition-colors inline-block w-full text-center">
+                        Buy Now
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })
+            )}
           </div>
         </div>
       </section>
@@ -482,7 +550,7 @@ export default function Home() {
         videos={customerVideos}
       />
 
-      {/* <OurStorySection /> */}
+      <OurStorySection />
 
       {/* Video Modal */}
       {modalVideoUrl && (

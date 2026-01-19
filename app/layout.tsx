@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import FloatingChatSupport from "./components/FloatingChatSupport";
-import FloatingVideoWidget from "./components/FloatingVideoWidget";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { CartProvider } from "@/contexts/CartContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,13 +38,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
       >
-        <Header />
-        {children}
-        <Footer />
-        <FloatingVideoWidget
-          videoSource="https://ik.imagekit.io/gqrc4jrxj/kailash/Shilajit%20Documentry%20720p.mov"
-        />
-        <FloatingChatSupport />
+        <CartProvider>
+          <Header />
+          {children}
+          <Footer />
+          <FloatingWhatsApp />
+          <FloatingChatSupport />
+        </CartProvider>
       </body>
     </html>
   );
